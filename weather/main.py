@@ -84,7 +84,7 @@ else:
     try:
         setup_rtc_alarm()
         main_main()
-        go_deepsleep()
     except:
         pass
-
+    finally:
+        go_deepsleep()
