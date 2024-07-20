@@ -34,8 +34,8 @@ def write74HC595_bitbang(data, num_bits=8):
 
 # Just to test hardware SPI, software SPI and my bit-bang versions works equally
 def write74HC595(data, num_bits=8):
-    #write74HC595_spi(data, num_bits)
-    write74HC595_bitbang(data, num_bits)
+    write74HC595_spi(data, num_bits)
+    #write74HC595_bitbang(data, num_bits)
 
 def hello(iterations=10):
     for j in range(iterations):
