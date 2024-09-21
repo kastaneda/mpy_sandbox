@@ -1,0 +1,4 @@
+import urequests
+#print(urequests.get(myEndpoint))
+x = urequests.get(url='http://de.co.ua/0/')
+print(x.content)

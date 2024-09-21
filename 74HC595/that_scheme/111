@@ -1,0 +1,57 @@
+
+
+// https://docs.micropython.org/en/latest/library/esp.html
+
+import esp
+esp.sleep_type(esp.SLEEP_NONE)
+
+// https://docs.micropython.org/en/latest/library/time.html
+
+import time
+myStepper.motor1.stepTarget = 2048
+myStepper.motor2.stepTarget = 2048
+myStepper.motor3.stepTarget = 2048
+t0 = time.ticks_us()
+for x in range(1024):
+    myStepper.oneStep()
+t1 = time.ticks_us()
+print(t1-t0)
+
+// hardware SPI:  893.141 ms
+// software SPI: 1215.474 ms
+// bit-bang:     1887.523 ms
+
+// target() and _delta
+
+import time
+myStepper.motor1.target(2048)
+myStepper.motor2.target(2048)
+myStepper.motor3.target(2048)
+t0 = time.ticks_us()
+for x in range(1024):
+    myStepper.oneStep()
+t1 = time.ticks_us()
+print(t1-t0)
+
+// hardware SPI:  893.141 ms ->  752.985 ms
+// software SPI: 1215.474 ms -> 1071.198 ms
+// bit bang:     1887.523 ms -> 1770.750 ms
+
+myShiftRegister.write74HC595_bitbang(0, 16)
+
+myShiftRegister.write74HC595_bitbang(65535, 16)
+
+
+myShiftRegister.write74HC595_spi(0, 16)
+
+///
+
+import network
+sta_if = network.WLAN(network.STA_IF)
+sta_if.active(True)
+# sta_if.scan()
+sta_if.connect('...', '...')
+
+
+https://pypi.org/project/micropython-umqtt.simple/
+http://test.localhost/2022/11/14/micropython-on-esp8266.html

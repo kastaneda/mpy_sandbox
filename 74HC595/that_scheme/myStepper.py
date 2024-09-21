@@ -4,22 +4,26 @@ class MyStepper:
     outputBits = 0                  # part of 74HC595 output
     stepActual = 0
     stepTarget = 0
+    _delta = 0
     
     def __init__(self, stepBitMask):
+        assert len(stepBitMask) == 4
         self.stepBitMask = stepBitMask
-    
+
+    def target(self, target):
+        self.stepTarget = target
+        self._delta = 1 if self.stepActual < self.stepTarget else -1
+
     def update(self):
         if (self.stepActual == self.stepTarget):
-            self.outputBits = 0     # turn coils off
-            return                  # and then skip one cycle
+            self.outputBits = 0     # turn the coils off after last step
+            return
 
-        delta = 1 if self.stepActual < self.stepTarget else -1
+        if (self.outputBits):       # if the coils is already turned on
+            self.stepActual += self._delta
+        # else: turn on the coils at last position, wait one step cycle
 
-        if (self.outputBits):       # if coils is already on
-            self.stepActual += delta
-
-        step = self.stepActual % len(self.stepBitMask)
-        self.outputBits = self.stepBitMask[step]
+        self.outputBits = self.stepBitMask[self.stepActual & 3]
 
 # my 2x SN74HC595 + 2x ULN2003AN scheme, version 4c:
 #
