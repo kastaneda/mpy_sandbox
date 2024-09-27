@@ -30,6 +30,11 @@ def saveRTC():
     global rtcm
     rtc.memory(json.dumps(rtcm))    
 
+def fixBuggyDHCP():
+    global sta_if
+    cfg = sta_if.ifconfig()
+    sta_if.ifconfig((cfg[0], cfg[1], cfg[2], '8.8.8.8'))
+
 def tryWifi(candidate):
     global sta_if
     debug_print('Connecting to', candidate['essid'], '', end='')
@@ -47,17 +52,21 @@ def tryWifi(candidate):
 def setupWifi():
     global sta_if, rtcm
     sta_if.active(True)
-    if connected():
+    if connected() and wifi():
+        fixBuggyDHCP()
+        debug_print('Already connected to Wi-Fi')
         return True
     sta_if.scan()
     lastWifi = wifi()
     if lastWifi:
         if tryWifi(lastWifi):
+            fixBuggyDHCP()
             rtcm['wifi'] = lastWifi
             saveRTC()
             return True
     for candidate in config.wifi_avail:
         if lastWifi != candidate and tryWifi(candidate):
+            fixBuggyDHCP()
             rtcm['wifi'] = candidate
             saveRTC()
             return True
@@ -73,4 +82,3 @@ def deepsleep(seconds=60):
     rtc.irq(trigger=rtc.ALARM0, wake=machine.DEEPSLEEP)
     rtc.alarm(rtc.ALARM0, seconds * 1000)
     machine.deepsleep()
-
