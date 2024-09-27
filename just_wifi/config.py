@@ -1,7 +1,9 @@
-myStationId = 'board05'
-myEndpoint = False
+debug = True
+#debug = False
 
-myWifiConfig = [
+board_id = 'board05'
+
+wifi_avail = [
     {
         'essid': 'Termux',
         'password': '...',
