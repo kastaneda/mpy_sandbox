@@ -1,0 +1,343 @@
+[
+    {
+        "id": "8264e5bc0b5255bd",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3ce712699ada1165",
+        "type": "ui_switch",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "label": "LED",
+        "tooltip": "",
+        "group": "4e6706b1594f81b5",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "0",
+        "onvalueType": "num",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "1",
+        "offvalueType": "num",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 410,
+        "y": 260,
+        "wires": [
+            [
+                "c649894784092abf"
+            ]
+        ]
+    },
+    {
+        "id": "c649894784092abf",
+        "type": "mqtt out",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "topic": "board05/led/set",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "a213f68ed3d1b8de",
+        "x": 650,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "73f628b3cdc830ad",
+        "type": "mqtt in",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "topic": "board05/status",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a213f68ed3d1b8de",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 120,
+        "wires": [
+            [
+                "4510a2380d1f910f",
+                "0e96cbe97bb727d4"
+            ]
+        ]
+    },
+    {
+        "id": "51aeca5907858566",
+        "type": "ui_text",
+        "z": "8264e5bc0b5255bd",
+        "group": "4e6706b1594f81b5",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Status",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 410,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "4510a2380d1f910f",
+        "type": "function",
+        "z": "8264e5bc0b5255bd",
+        "name": "on/off",
+        "func": "if (msg.payload) {\n    msg.payload = 'Online 🟢';\n} else  {\n    msg.payload = 'Offline 🔴';\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 60,
+        "wires": [
+            [
+                "51aeca5907858566"
+            ]
+        ]
+    },
+    {
+        "id": "1a9f671e4080e153",
+        "type": "mqtt in",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "topic": "board05/led",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a213f68ed3d1b8de",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 300,
+        "wires": [
+            [
+                "3ce712699ada1165"
+            ]
+        ]
+    },
+    {
+        "id": "8f188e80e312d971",
+        "type": "mqtt in",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "topic": "board05/vcc",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a213f68ed3d1b8de",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 360,
+        "wires": [
+            [
+                "27e2afd65ee5e837",
+                "415ef70e8ad76a37"
+            ]
+        ]
+    },
+    {
+        "id": "27e2afd65ee5e837",
+        "type": "ui_gauge",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "group": "84b9c57831b769f6",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Vcc now",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "2000",
+        "max": "3000",
+        "colors": [
+            "#63452c",
+            "#f8e45c",
+            "#57e389"
+        ],
+        "seg1": "2300",
+        "seg2": "2800",
+        "diff": false,
+        "className": "",
+        "x": 420,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "415ef70e8ad76a37",
+        "type": "ui_chart",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "group": "84b9c57831b769f6",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "label": "Vcc chart",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "3000",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 420,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6ca75e36470d5b45",
+        "type": "function",
+        "z": "8264e5bc0b5255bd",
+        "name": "invert",
+        "func": "if (msg.payload) {\n    msg.payload = 0;\n} else {\n    msg.payload = 1;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 200,
+        "wires": [
+            [
+                "3ce712699ada1165"
+            ]
+        ]
+    },
+    {
+        "id": "0e96cbe97bb727d4",
+        "type": "function",
+        "z": "8264e5bc0b5255bd",
+        "name": "when offline",
+        "func": "if (msg.payload) {\n    return null;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 200,
+        "wires": [
+            [
+                "6ca75e36470d5b45",
+                "27e2afd65ee5e837",
+                "415ef70e8ad76a37"
+            ]
+        ]
+    },
+    {
+        "id": "4e6706b1594f81b5",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "f8d415d61e55667d",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "a213f68ed3d1b8de",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "192.168.0.82",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "84b9c57831b769f6",
+        "type": "ui_group",
+        "name": "Input voltage",
+        "tab": "f8d415d61e55667d",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f8d415d61e55667d",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]

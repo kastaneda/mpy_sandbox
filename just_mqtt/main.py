@@ -1,4 +1,4 @@
-import config, connect, machine, time, umqtt.robust
+import config, connect, machine, time, umqtt.robust, gc
 
 # Small shorthand for topic names
 def t(suffix):
@@ -42,10 +42,11 @@ class CronJob:
 crontab = [
     CronJob(1000, lambda: print('.', end='')),
     CronJob(1000, lambda: client.ping()),
-    CronJob(2500, lambda: client.publish(t('vcc'), str(vcc.read()))),
+    CronJob(5000, lambda: client.publish(t('vcc'), str(vcc.read()))),
     # Optional: periodic updates to synchronize device and Node-RED
     CronJob(20000, lambda: client.publish(t('status'), b'1')),
-    CronJob(20000, lambda: client.publish(t('led'), str(led.value())))
+    CronJob(20000, lambda: client.publish(t('led'), str(led.value()))),
+    CronJob(60000, lambda: gc.collect())
 ]
 
 print('MQTT main loop')
