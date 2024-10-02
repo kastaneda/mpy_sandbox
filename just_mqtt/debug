@@ -1,0 +1,5 @@
+#!/bin/sh
+HOST="192.168.0.82"
+SUBSCRIBE="#"
+#mosquitto_sub -h "$HOST" -t "$SUBSCRIBE" -v
+mosquitto_sub -h "$HOST" -t "$SUBSCRIBE" -F "topic=\e[32m%t\e[0m message=\e[36m%p\e[0m"
