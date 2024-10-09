@@ -73,13 +73,14 @@ crontab = [
     CronJob(1000, dbg_report_loops)
 ]
 
+tim = machine.Timer(-1)
+tim.init(freq=400, mode=machine.Timer.PERIODIC, callback=lambda t: oneStep())
+
 print('MQTT main loop')
 while True:
     dbg_loop_counter += 1
-    client.check_msg()
-    oneStep()
-    #if client.check_msg() == None:
-    #    time.sleep_ms(50)
+    if client.check_msg() == None:
+        time.sleep_ms(10)
     for job in crontab:
         job.run()
 
