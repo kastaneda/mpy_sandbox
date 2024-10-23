@@ -22,17 +22,17 @@ led.value(1)
 # It's more practical to invert it here, on the device's side
 client.publish(topic('led'), str(1-led.value()))
 
+topic_callbacks = {
+    topic('led/set'): lambda m: led.value(0 if m == b'1' else 1),
+    topic('motor1/set'): motor1.target,
+    topic('motor2/set'): motor2.target,
+    topic('motor3/set'): motor3.target,
+    topic('sleep/set'): connect.deepSleep
+}
+
 def mqtt_callback(topicName, msg):
-    if topicName == topic('led/set'):
-        led.value(0 if msg == b'1' else 1)
-    if topicName == topic('motor1/set'):
-        motor1.target(int(msg))
-    if topicName == topic('motor2/set'):
-        motor2.target(int(msg))
-    if topicName == topic('motor3/set'):
-        motor3.target(int(msg))
-    if topicName == topic('sleep/set'):
-        connect.deepSleep(int(msg))
+    fn = topic_callbacks.get(topicName, lambda x: None)
+    fn(msg)
 
 client.set_callback(mqtt_callback)
 client.subscribe(topic('+/set'))
@@ -66,11 +66,18 @@ cron(600000, lambda t: gc.collect()),
 cron(1000, lambda t: print('.', end='')),
 cron(1000, dbg_report_loops)
 
-tim = machine.Timer(-1)
-tim.init(freq=400, mode=machine.Timer.PERIODIC, callback=lambda t: oneStep())
+stepperTimer = machine.Timer(-1)
+stepperTimer.init(freq=400, mode=machine.Timer.PERIODIC, callback=lambda t: oneStep())
+crontab.append(stepperTimer)
 
-print('MQTT main loop')
-while True:
-    dbg_loop_counter += 1
-    if client.check_msg() == None:
-        time.sleep_ms(10)
+try:
+    print('Start MQTT main loop, press Ctrl-C to stop')
+    while True:
+        dbg_loop_counter += 1
+        if client.check_msg() == None:
+            time.sleep_ms(10)
+except KeyboardInterrupt:
+    print('\nStopped')
+    for t in crontab:
+        t.deinit()
+
