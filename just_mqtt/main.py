@@ -4,7 +4,25 @@ from shift_stepper import motor1, motor2, motor3, oneStep
 def topic(suffix):
     return (config.board_id + '/' + suffix).encode('ascii')
 
+def motor_fromRTC():
+    try:
+        position = connect.rtcm['motor']
+        motor1.stepActual = position['motor1_actual']
+        motor2.stepActual = position['motor2_actual']
+        motor3.stepActual = position['motor3_actual']
+    except KeyError:
+        pass
+
+def motor_toRTC(t):
+    connect.rtcm['motor'] = {
+        'motor1_actual': motor1.stepActual,
+        'motor2_actual': motor2.stepActual,
+        'motor3_actual': motor3.stepActual
+    }
+
 connect.loadRTC()
+motor_fromRTC()
+
 connect.setupWifi()
 
 # https://github.com/micropython/micropython-lib/blob/master/micropython/umqtt.simple/README.rst
@@ -65,6 +83,7 @@ cron(600000, lambda t: gc.collect()),
 # Debug things
 cron(1000, lambda t: print('.', end='')),
 cron(1000, dbg_report_loops)
+cron(200, motor_toRTC)
 
 stepperTimer = machine.Timer(-1)
 stepperTimer.init(freq=400, mode=machine.Timer.PERIODIC, callback=lambda t: oneStep())
