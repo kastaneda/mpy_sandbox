@@ -99,4 +99,4 @@ except KeyboardInterrupt:
     print('\nStopped')
     for t in crontab:
         t.deinit()
-
+    connect.saveRTC()
