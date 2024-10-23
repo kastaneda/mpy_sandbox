@@ -41,12 +41,15 @@ class MyStepper:
     stepActual = 0
     stepTarget = 0
     _delta = 0
+
     def __init__(self, stepBitMask):
         assert len(stepBitMask) == 4
         self.stepBitMask = stepBitMask
+
     def target(self, target):
-        self.stepTarget = target
+        self.stepTarget = int(target)
         self._delta = 1 if self.stepActual < self.stepTarget else -1
+
     def update(self):
         if (self.stepActual == self.stepTarget):
             self.outputBits = 0
