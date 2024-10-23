@@ -1,4 +1,4 @@
-import config, time, network, machine, json
+import config, time, network, machine, json, uos
 
 print = print if config.debug else lambda *args, **kwargs: None
 sta_if = network.WLAN(network.STA_IF)
@@ -72,8 +72,13 @@ def setupWifi():
 
 def deepSleep(seconds=60):
     saveRTC()
-    print('Go to deep sleep for', seconds, 'seconds')
-    rtc.irq(trigger=rtc.ALARM0, wake=machine.DEEPSLEEP)
-    rtc.alarm(rtc.ALARM0, seconds * 1000)
-    machine.deepsleep()
-
+    print('Go to deep sleep for', int(seconds), 'seconds')
+    sysname = uos.uname().sysname
+    if sysname == 'esp32':
+        machine.deepsleep(int(seconds) * 1000)
+    elif sysname == 'esp8266':
+        rtc.irq(trigger=rtc.ALARM0, wake=machine.DEEPSLEEP)
+        rtc.alarm(rtc.ALARM0, int(seconds) * 1000)
+        machine.deepsleep()
+    else:
+        raise Exception('Platform not supported')
