@@ -37,41 +37,34 @@ def mqtt_callback(topicName, msg):
 client.set_callback(mqtt_callback)
 client.subscribe(topic('+/set'))
 
-class CronJob:
-    def __init__(self, periodMs, callback):
-        self._lastRun = 0
-        self._periodMs = periodMs
-        self._callback = callback
-    def run(self):
-        timeNow = time.ticks_ms()
-        timeDiff = timeNow - self._lastRun
-        if timeDiff > self._periodMs:
-            self._lastRun = timeNow
-            self._callback()
-
 # Debug thing: count loops per second
 dbg_loop_counter = 0
 
-def dbg_report_loops():
+def dbg_report_loops(t):
     global dbg_loop_counter
     client.publish(topic('lps'), str(dbg_loop_counter))
     dbg_loop_counter = 0
 
-crontab = [
-    CronJob(1000, lambda: client.ping()),
-    CronJob(5000, lambda: client.publish(topic('vcc'), str(vcc.read()))),
-    CronJob(500, lambda: client.publish(topic('motor1'), str(motor1.stepActual))),
-    CronJob(500, lambda: client.publish(topic('motor2'), str(motor2.stepActual))),
-    CronJob(500, lambda: client.publish(topic('motor3'), str(motor3.stepActual))),
-    # Optional: periodic updates to synchronize device and Node-RED
-    CronJob(20000, lambda: client.publish(topic('status'), b'1')),
-    CronJob(20000, lambda: client.publish(topic('led'), str(1-led.value()))),
-    # Hmmm, dunno if I really need it
-    CronJob(600000, lambda: gc.collect()),
-    # Debug things
-    CronJob(1000, lambda: print('.', end='')),
-    CronJob(1000, dbg_report_loops)
-]
+crontab = []
+def cron(ms, fn):
+    global crontab
+    t = machine.Timer(-1)
+    t.init(mode=machine.Timer.PERIODIC, period=ms, callback=fn)
+    crontab.append(t)
+
+cron(1000, lambda t: client.ping()),
+cron(5000, lambda t: client.publish(topic('vcc'), str(vcc.read()))),
+cron(500, lambda t: client.publish(topic('motor1'), str(motor1.stepActual))),
+cron(500, lambda t: client.publish(topic('motor2'), str(motor2.stepActual))),
+cron(500, lambda t: client.publish(topic('motor3'), str(motor3.stepActual))),
+# Optional: periodic updates to synchronize device and Node-RED
+cron(20000, lambda t: client.publish(topic('status'), b'1')),
+cron(20000, lambda t: client.publish(topic('led'), str(1-led.value()))),
+# Hmmm, dunno if I really need it
+cron(600000, lambda t: gc.collect()),
+# Debug things
+cron(1000, lambda t: print('.', end='')),
+cron(1000, dbg_report_loops)
 
 tim = machine.Timer(-1)
 tim.init(freq=400, mode=machine.Timer.PERIODIC, callback=lambda t: oneStep())
@@ -81,6 +74,3 @@ while True:
     dbg_loop_counter += 1
     if client.check_msg() == None:
         time.sleep_ms(10)
-    for job in crontab:
-        job.run()
-
