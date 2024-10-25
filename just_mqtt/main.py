@@ -72,18 +72,18 @@ def cron(fn, **kwargs):
     t.init(**kwargs)
     crontab.append(t)
 
-cron(lambda t: client.ping(), period=1000),
-cron(lambda t: client.publish(topic('vcc'), str(vcc.read())), period=5000),
-cron(lambda t: client.publish(topic('motor1'), str(motor1.stepActual)), period=500),
-cron(lambda t: client.publish(topic('motor2'), str(motor2.stepActual)), period=500),
-cron(lambda t: client.publish(topic('motor3'), str(motor3.stepActual)), period=500),
+cron(lambda t: client.ping(), period=1000)
+cron(lambda t: client.publish(topic('vcc'), str(vcc.read())), period=5000)
+cron(lambda t: client.publish(topic('motor1'), str(motor1.stepActual)), period=500)
+cron(lambda t: client.publish(topic('motor2'), str(motor2.stepActual)), period=500)
+cron(lambda t: client.publish(topic('motor3'), str(motor3.stepActual)), period=500)
 # Optional: periodic updates to synchronize device and Node-RED
-cron(lambda t: client.publish(topic('status'), b'1'), period=20000),
-cron(lambda t: client.publish(topic('led'), str(1-led.value())), period=20000),
+cron(lambda t: client.publish(topic('status'), b'1'), period=20000)
+cron(lambda t: client.publish(topic('led'), str(1-led.value())), period=20000)
 # Hmmm, dunno if I really need it
-cron(lambda t: gc.collect(), period=600000),
+cron(lambda t: gc.collect(), period=600000)
 # Debug things
-cron(lambda t: print('.', end=''), period=1000),
+cron(lambda t: print('.', end=''), period=1000)
 cron(dbg_report_loops, period=1000)
 cron(motor_toRTC, period=200)
 cron(lambda t: oneStep(), freq=400)
@@ -99,3 +99,4 @@ except KeyboardInterrupt:
     for t in crontab:
         t.deinit()
     connect.saveRTC()
+
