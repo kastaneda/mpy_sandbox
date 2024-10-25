@@ -67,6 +67,21 @@ motor1 = MyStepper([ 0b1100 << 1, 0b0110 << 1, 0b0011 << 1, 0b1001 << 1 ])
 motor2 = MyStepper([ 0b11000 << 6, 0b01010 << 6, 0b00011 << 6, 0b10001 << 6 ])
 motor3 = MyStepper([ 0b1100 << 12, 0b0110 << 12, 0b0011 << 12, 0b1001 << 12 ])
 
+def loadPosition(position):
+    try:
+        motor1.stepActual = position['motor1_actual']
+        motor2.stepActual = position['motor2_actual']
+        motor3.stepActual = position['motor3_actual']
+    except (KeyError, TypeError):
+        pass
+
+def savePosition():
+    return {
+        'motor1_actual': motor1.stepActual,
+        'motor2_actual': motor2.stepActual,
+        'motor3_actual': motor3.stepActual
+    }
+
 def oneStep():
     motor1.update()
     motor2.update()

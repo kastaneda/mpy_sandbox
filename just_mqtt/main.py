@@ -1,28 +1,11 @@
-import config, connect, machine, time, umqtt.robust, gc, micropython
-from shift_stepper import motor1, motor2, motor3, oneStep
+import machine, time, umqtt.robust, gc, micropython
+import config, connect, shift_stepper
 
 def topic(suffix):
     return (config.board_id + '/' + suffix).encode('ascii')
 
-def motor_fromRTC():
-    try:
-        position = connect.rtcm['motor']
-        motor1.stepActual = position['motor1_actual']
-        motor2.stepActual = position['motor2_actual']
-        motor3.stepActual = position['motor3_actual']
-    except KeyError:
-        pass
-
-def motor_toRTC(t):
-    connect.rtcm['motor'] = {
-        'motor1_actual': motor1.stepActual,
-        'motor2_actual': motor2.stepActual,
-        'motor3_actual': motor3.stepActual
-    }
-
 connect.loadRTC()
-motor_fromRTC()
-
+shift_stepper.loadPosition(connect.rtcm.get('motor'))
 connect.setupWifi()
 
 # https://github.com/micropython/micropython-lib/blob/master/micropython/umqtt.simple/README.rst
@@ -42,9 +25,9 @@ client.publish(topic('led'), str(1-led.value()))
 
 topic_callbacks = {
     topic('led/set'): lambda m: led.value(0 if m == b'1' else 1),
-    topic('motor1/set'): motor1.target,
-    topic('motor2/set'): motor2.target,
-    topic('motor3/set'): motor3.target,
+    topic('motor1/set'): shift_stepper.motor1.target,
+    topic('motor2/set'): shift_stepper.motor2.target,
+    topic('motor3/set'): shift_stepper.motor3.target,
     topic('sleep/set'): connect.deepSleep
 }
 
@@ -75,9 +58,6 @@ def cron(fn, **kwargs):
 
 cron(lambda t: client.ping(), period=1000)
 cron(lambda t: client.publish(topic('vcc'), str(vcc.read())), period=5000)
-cron(lambda t: client.publish(topic('motor1'), str(motor1.stepActual)), period=500)
-cron(lambda t: client.publish(topic('motor2'), str(motor2.stepActual)), period=500)
-cron(lambda t: client.publish(topic('motor3'), str(motor3.stepActual)), period=500)
 # Optional: periodic updates to synchronize device and Node-RED
 cron(lambda t: client.publish(topic('status'), b'1'), period=20000)
 cron(lambda t: client.publish(topic('led'), str(1-led.value())), period=20000)
@@ -86,8 +66,12 @@ cron(lambda t: gc.collect(), period=600000)
 # Debug things
 cron(lambda t: print('.', end=''), period=1000)
 cron(dbg_report_loops, period=1000)
-cron(motor_toRTC, period=200)
-cron(lambda t: oneStep(), freq=400)
+# The motors
+cron(lambda t: shift_stepper.oneStep(), freq=400)
+cron(lambda t: client.publish(topic('motor1'), str(shift_stepper.motor1.stepActual)), period=500)
+cron(lambda t: client.publish(topic('motor2'), str(shift_stepper.motor2.stepActual)), period=500)
+cron(lambda t: client.publish(topic('motor3'), str(shift_stepper.motor3.stepActual)), period=500)
+cron(lambda t: connect.rtcm.update(motor=shift_stepper.savePosition()), period=200)
 
 try:
     print('Start MQTT main loop, press Ctrl-C to stop')
@@ -100,4 +84,3 @@ except KeyboardInterrupt:
     for t in crontab:
         t.deinit()
     connect.saveRTC()
-
