@@ -66,6 +66,7 @@ def dbg_report_loops(t):
 crontab = []
 def cron(fn, **kwargs):
     global crontab
+    # https://docs.micropython.org/en/latest/reference/isr_rules.html#using-micropython-schedule
     kwargs['callback'] = lambda t: micropython.schedule(fn, t)
     kwargs['mode'] = machine.Timer.PERIODIC
     t = machine.Timer(-1)
