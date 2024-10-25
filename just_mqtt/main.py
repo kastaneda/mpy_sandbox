@@ -1,4 +1,4 @@
-import config, connect, machine, time, umqtt.robust, gc
+import config, connect, machine, time, umqtt.robust, gc, micropython
 from shift_stepper import motor1, motor2, motor3, oneStep
 
 def topic(suffix):
@@ -64,30 +64,29 @@ def dbg_report_loops(t):
     dbg_loop_counter = 0
 
 crontab = []
-def cron(ms, fn):
+def cron(fn, **kwargs):
     global crontab
+    kwargs['callback'] = lambda t: micropython.schedule(fn, t)
+    kwargs['mode'] = machine.Timer.PERIODIC
     t = machine.Timer(-1)
-    t.init(mode=machine.Timer.PERIODIC, period=ms, callback=fn)
+    t.init(**kwargs)
     crontab.append(t)
 
-cron(1000, lambda t: client.ping()),
-cron(5000, lambda t: client.publish(topic('vcc'), str(vcc.read()))),
-cron(500, lambda t: client.publish(topic('motor1'), str(motor1.stepActual))),
-cron(500, lambda t: client.publish(topic('motor2'), str(motor2.stepActual))),
-cron(500, lambda t: client.publish(topic('motor3'), str(motor3.stepActual))),
+cron(lambda t: client.ping(), period=1000),
+cron(lambda t: client.publish(topic('vcc'), str(vcc.read())), period=5000),
+cron(lambda t: client.publish(topic('motor1'), str(motor1.stepActual)), period=500),
+cron(lambda t: client.publish(topic('motor2'), str(motor2.stepActual)), period=500),
+cron(lambda t: client.publish(topic('motor3'), str(motor3.stepActual)), period=500),
 # Optional: periodic updates to synchronize device and Node-RED
-cron(20000, lambda t: client.publish(topic('status'), b'1')),
-cron(20000, lambda t: client.publish(topic('led'), str(1-led.value()))),
+cron(lambda t: client.publish(topic('status'), b'1'), period=20000),
+cron(lambda t: client.publish(topic('led'), str(1-led.value())), period=20000),
 # Hmmm, dunno if I really need it
-cron(600000, lambda t: gc.collect()),
+cron(lambda t: gc.collect(), period=600000),
 # Debug things
-cron(1000, lambda t: print('.', end='')),
-cron(1000, dbg_report_loops)
-cron(200, motor_toRTC)
-
-stepperTimer = machine.Timer(-1)
-stepperTimer.init(freq=400, mode=machine.Timer.PERIODIC, callback=lambda t: oneStep())
-crontab.append(stepperTimer)
+cron(lambda t: print('.', end=''), period=1000),
+cron(dbg_report_loops, period=1000)
+cron(motor_toRTC, period=200)
+cron(lambda t: oneStep(), freq=400)
 
 try:
     print('Start MQTT main loop, press Ctrl-C to stop')
