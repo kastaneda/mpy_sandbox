@@ -9,11 +9,7 @@ def connected():
     return sta_if.isconnected()
 
 def wifi(key=None):
-    try:
-        wifi = rtcm['wifi']
-        return wifi[key] if key else wifi
-    except KeyError:
-        return False
+    return rtcm.get('wifi', {}).get(key) if key else rtcm.get('wifi')
 
 def loadRTC():
     global rtcm
@@ -22,7 +18,6 @@ def loadRTC():
         print('RTC memory:', rtcm)
     except ValueError:
         print('RTC memory not loaded')
-        pass
 
 def saveRTC():
     rtc.memory(json.dumps(rtcm))
