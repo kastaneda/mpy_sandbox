@@ -26,8 +26,7 @@ def tryWifi(candidate):
     print('Connecting to', candidate['essid'], '', end='')
     sta_if.connect(candidate['essid'], candidate['password'])
     for i in range(40):
-        if config.debug:
-            print('.', end='')
+        print('.', end='')
         time.sleep_ms(250)
         if connected():
             print(' connected')
@@ -51,8 +50,6 @@ def setupWifi():
     lastWifi = wifi()
     if lastWifi:
         if tryWifi(lastWifi):
-            rtcm['wifi'] = lastWifi
-            saveRTC()
             return True
     for candidate in config.wifi_avail:
         if lastWifi != candidate and tryWifi(candidate):
