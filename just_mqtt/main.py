@@ -38,14 +38,6 @@ def mqtt_callback(topicName, msg):
 client.set_callback(mqtt_callback)
 client.subscribe(topic('+/set'))
 
-# Debug thing: count loops per second
-dbg_loop_counter = 0
-
-def dbg_report_loops(t):
-    global dbg_loop_counter
-    client.publish(topic('lps'), str(dbg_loop_counter))
-    dbg_loop_counter = 0
-
 crontab = []
 def cron(fn, **kwargs):
     global crontab
@@ -65,7 +57,6 @@ cron(lambda t: client.publish(topic('led'), str(1-led.value())), period=20000)
 cron(lambda t: gc.collect(), period=600000)
 # Debug things
 cron(lambda t: print('.', end=''), period=1000)
-cron(dbg_report_loops, period=1000)
 # The motors
 cron(lambda t: shift_stepper.oneStep(), freq=400)
 cron(lambda t: client.publish(topic('motor1'), str(shift_stepper.motor1.stepActual)), period=500)
@@ -76,9 +67,7 @@ cron(lambda t: connect.rtcm.update(motor=shift_stepper.savePosition()), period=2
 try:
     print('Start MQTT main loop, press Ctrl-C to stop')
     while True:
-        dbg_loop_counter += 1
-        if client.check_msg() == None:
-            time.sleep_ms(10)
+        client.wait_msg()
 except KeyboardInterrupt:
     print('\nStopped')
     for t in crontab:
