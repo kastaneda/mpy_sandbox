@@ -56,7 +56,7 @@
         "expiry": "",
         "broker": "a213f68ed3d1b8de",
         "x": 650,
-        "y": 220,
+        "y": 200,
         "wires": []
     },
     {
@@ -72,8 +72,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 140,
-        "y": 120,
+        "x": 160,
+        "y": 60,
         "wires": [
             [
                 "4510a2380d1f910f",
@@ -99,7 +99,7 @@
         "fontSize": 16,
         "color": "#000000",
         "x": 410,
-        "y": 120,
+        "y": 140,
         "wires": []
     },
     {
@@ -114,8 +114,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 290,
-        "y": 60,
+        "x": 230,
+        "y": 160,
         "wires": [
             [
                 "51aeca5907858566"
@@ -136,7 +136,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 150,
-        "y": 300,
+        "y": 260,
         "wires": [
             [
                 "3ce712699ada1165"
@@ -157,7 +157,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 150,
-        "y": 540,
+        "y": 720,
         "wires": [
             [
                 "27e2afd65ee5e837",
@@ -190,7 +190,7 @@
         "diff": false,
         "className": "",
         "x": 420,
-        "y": 540,
+        "y": 720,
         "wires": []
     },
     {
@@ -232,7 +232,7 @@
         "useDifferentColor": false,
         "className": "",
         "x": 420,
-        "y": 600,
+        "y": 760,
         "wires": [
             []
         ]
@@ -249,82 +249,16 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 150,
-        "y": 220,
+        "x": 190,
+        "y": 200,
         "wires": [
             [
                 "27e2afd65ee5e837",
                 "415ef70e8ad76a37",
                 "3ce712699ada1165",
-                "a315b03f36ab6c16",
                 "f15742a779d23e7f",
                 "c54353b4f7e0f3d0",
                 "045151ea33526935"
-            ]
-        ]
-    },
-    {
-        "id": "a315b03f36ab6c16",
-        "type": "ui_chart",
-        "z": "8264e5bc0b5255bd",
-        "name": "",
-        "group": "8b97d20aad29218b",
-        "order": 1,
-        "width": 0,
-        "height": 0,
-        "label": "Loops per second",
-        "chartType": "line",
-        "legend": "false",
-        "xformat": "HH:mm:ss",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "",
-        "ymax": "",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 0,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-            "#1f77b4",
-            "#aec7e8",
-            "#ff7f0e",
-            "#2ca02c",
-            "#98df8a",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 450,
-        "y": 700,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "9caeee6850f2e3d3",
-        "type": "mqtt in",
-        "z": "8264e5bc0b5255bd",
-        "name": "",
-        "topic": "board05/lps",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "a213f68ed3d1b8de",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 150,
-        "y": 660,
-        "wires": [
-            [
-                "a315b03f36ab6c16"
             ]
         ]
     },
@@ -342,10 +276,10 @@
         "rh": 0,
         "inputs": 0,
         "x": 160,
-        "y": 380,
+        "y": 460,
         "wires": [
             [
-                "1811e07b890eb996"
+                "d299f9cb87371fb1"
             ]
         ]
     },
@@ -363,10 +297,10 @@
         "rh": 0,
         "inputs": 0,
         "x": 160,
-        "y": 420,
+        "y": 520,
         "wires": [
             [
-                "8ca4afc9c4e0b6b5"
+                "045a3e574686d06c"
             ]
         ]
     },
@@ -384,75 +318,12 @@
         "rh": 0,
         "inputs": 0,
         "x": 160,
-        "y": 460,
+        "y": 580,
         "wires": [
             [
-                "3cb813ad323b023a"
+                "6febf2a158c4a0c2"
             ]
         ]
-    },
-    {
-        "id": "1811e07b890eb996",
-        "type": "ui_text",
-        "z": "8264e5bc0b5255bd",
-        "group": "4e6706b1594f81b5",
-        "order": 3,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Motor1",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "className": "",
-        "style": false,
-        "font": "",
-        "fontSize": 16,
-        "color": "#000000",
-        "x": 420,
-        "y": 260,
-        "wires": []
-    },
-    {
-        "id": "8ca4afc9c4e0b6b5",
-        "type": "ui_text",
-        "z": "8264e5bc0b5255bd",
-        "group": "4e6706b1594f81b5",
-        "order": 5,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Motor2",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "className": "",
-        "style": false,
-        "font": "",
-        "fontSize": 16,
-        "color": "#000000",
-        "x": 420,
-        "y": 340,
-        "wires": []
-    },
-    {
-        "id": "3cb813ad323b023a",
-        "type": "ui_text",
-        "z": "8264e5bc0b5255bd",
-        "group": "4e6706b1594f81b5",
-        "order": 7,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Motor3",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "className": "",
-        "style": false,
-        "font": "",
-        "fontSize": 16,
-        "color": "#000000",
-        "x": 420,
-        "y": 420,
-        "wires": []
     },
     {
         "id": "f15742a779d23e7f",
@@ -461,8 +332,8 @@
         "name": "",
         "label": "Motor1 target",
         "tooltip": "",
-        "group": "4e6706b1594f81b5",
-        "order": 4,
+        "group": "8b97d20aad29218b",
+        "order": 1,
         "width": 0,
         "height": 0,
         "passthru": true,
@@ -472,9 +343,9 @@
         "min": 0,
         "max": "4096",
         "step": 1,
-        "className": "",
+        "className": "motorGroupSlider",
         "x": 440,
-        "y": 300,
+        "y": 380,
         "wires": [
             [
                 "af81effce527da1e"
@@ -488,8 +359,8 @@
         "name": "",
         "label": "Motor2 target",
         "tooltip": "",
-        "group": "4e6706b1594f81b5",
-        "order": 6,
+        "group": "8b97d20aad29218b",
+        "order": 3,
         "width": 0,
         "height": 0,
         "passthru": true,
@@ -499,9 +370,9 @@
         "min": 0,
         "max": "4096",
         "step": 1,
-        "className": "",
+        "className": "motorGroupSlider",
         "x": 440,
-        "y": 380,
+        "y": 480,
         "wires": [
             [
                 "c186ea48cc82a3f0"
@@ -515,8 +386,8 @@
         "name": "",
         "label": "Motor3 target",
         "tooltip": "",
-        "group": "4e6706b1594f81b5",
-        "order": 8,
+        "group": "8b97d20aad29218b",
+        "order": 5,
         "width": 0,
         "height": 0,
         "passthru": true,
@@ -526,9 +397,9 @@
         "min": 0,
         "max": "4096",
         "step": 1,
-        "className": "",
+        "className": "motorGroupSlider",
         "x": 440,
-        "y": 460,
+        "y": 580,
         "wires": [
             [
                 "a24bd5d9ba79e9d9"
@@ -550,7 +421,7 @@
         "expiry": "",
         "broker": "a213f68ed3d1b8de",
         "x": 660,
-        "y": 360,
+        "y": 440,
         "wires": []
     },
     {
@@ -568,7 +439,7 @@
         "expiry": "",
         "broker": "a213f68ed3d1b8de",
         "x": 660,
-        "y": 400,
+        "y": 500,
         "wires": []
     },
     {
@@ -586,7 +457,7 @@
         "expiry": "",
         "broker": "a213f68ed3d1b8de",
         "x": 660,
-        "y": 440,
+        "y": 560,
         "wires": []
     },
     {
@@ -594,8 +465,8 @@
         "type": "ui_button",
         "z": "8264e5bc0b5255bd",
         "name": "",
-        "group": "8b97d20aad29218b",
-        "order": 2,
+        "group": "4e6706b1594f81b5",
+        "order": 3,
         "width": 0,
         "height": 0,
         "passthru": false,
@@ -610,7 +481,7 @@
         "topic": "topic",
         "topicType": "msg",
         "x": 440,
-        "y": 760,
+        "y": 280,
         "wires": [
             [
                 "81586ccee4f0a0ac"
@@ -632,8 +503,104 @@
         "expiry": "",
         "broker": "a213f68ed3d1b8de",
         "x": 650,
-        "y": 740,
+        "y": 260,
         "wires": []
+    },
+    {
+        "id": "d299f9cb87371fb1",
+        "type": "ui_slider",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "label": "Motor1 actual",
+        "tooltip": "",
+        "group": "8b97d20aad29218b",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "4096",
+        "step": 1,
+        "className": "motorGroupSlider mgsActual",
+        "x": 440,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "045a3e574686d06c",
+        "type": "ui_slider",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "label": "Motor2 actual",
+        "tooltip": "",
+        "group": "8b97d20aad29218b",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "4096",
+        "step": 1,
+        "className": "motorGroupSlider mgsActual",
+        "x": 440,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6febf2a158c4a0c2",
+        "type": "ui_slider",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "label": "Motor3 actual",
+        "tooltip": "",
+        "group": "8b97d20aad29218b",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "4096",
+        "step": 1,
+        "className": "motorGroupSlider mgsActual",
+        "x": 440,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "590d3189718e5a9a",
+        "type": "ui_template",
+        "z": "8264e5bc0b5255bd",
+        "group": "4e6706b1594f81b5",
+        "name": "CSS",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\n    .motorGroupSlider p.label {\n        width: 12em;\n    }\n    .mgsActual {\n        /* Hmm... FIXME */\n    }\n</style>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "global",
+        "className": "",
+        "x": 410,
+        "y": 40,
+        "wires": [
+            []
+        ]
     },
     {
         "id": "4e6706b1594f81b5",
@@ -680,9 +647,9 @@
     {
         "id": "84b9c57831b769f6",
         "type": "ui_group",
-        "name": "Input voltage",
+        "name": "Voltage",
         "tab": "f8d415d61e55667d",
-        "order": 2,
+        "order": 3,
         "disp": true,
         "width": "6",
         "collapse": false,
@@ -691,9 +658,9 @@
     {
         "id": "8b97d20aad29218b",
         "type": "ui_group",
-        "name": "Debug",
+        "name": "Stepper motors",
         "tab": "f8d415d61e55667d",
-        "order": 3,
+        "order": 2,
         "disp": true,
         "width": "6",
         "collapse": false,
