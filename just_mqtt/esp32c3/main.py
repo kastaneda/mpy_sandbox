@@ -11,8 +11,6 @@ client.set_last_will(topic('status'), b'0')
 client.connect()
 client.publish(topic('status'), b'1')
 
-#vcc = machine.ADC(1)
-
 led = machine.Pin(8, machine.Pin.OUT)
 led.value(1)
 client.publish(topic('led'), str(1-led.value()))
@@ -45,29 +43,17 @@ class CronJob:
             self._lastRun = timeNow
             self._callback()
 
-# Debug thing: count loops per second
-dbg_loop_counter = 0
-
-def dbg_report_loops():
-    global dbg_loop_counter
-    client.publish(topic('lps'), str(dbg_loop_counter))
-    dbg_loop_counter = 0
-
 crontab = [
     CronJob(1000, lambda: client.ping()),
-    #CronJob(5000, lambda: client.publish(topic('vcc'), str(vcc.read()))),
     CronJob(20000, lambda: client.publish(topic('status'), b'1')),
     CronJob(20000, lambda: client.publish(topic('led'), str(1-led.value()))),
     CronJob(600000, lambda: gc.collect()),
-    CronJob(1000, lambda: print('.', end='')),
-    CronJob(1000, dbg_report_loops)
+    CronJob(1000, lambda: print('.', end=''))
 ]
 
 print('MQTT main loop')
 while True:
-    dbg_loop_counter += 1
     if client.check_msg() == None:
         time.sleep_ms(10)
     for job in crontab:
         job.run()
-
