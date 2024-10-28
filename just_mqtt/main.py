@@ -48,6 +48,19 @@ def cron(fn, **kwargs):
     t.init(**kwargs)
     crontab.append(t)
 
+recentReports = {}
+recentReportsCount = {}
+def reportIfChanged(name, value, factor=100):
+    global recentReports, recentReportsCount
+    if recentReports.get(name, False) == value:
+        count = recentReportsCount.get(name, 0)
+        if count < factor:
+            recentReportsCount[name] = count+1
+            return
+    client.publish(topic(name), str(value))
+    recentReportsCount[name] = 0
+    recentReports[name] = value
+
 cron(lambda t: client.ping(), period=1000)
 cron(lambda t: client.publish(topic('vcc'), str(vcc.read())), period=5000)
 # Optional: periodic updates to synchronize device and Node-RED
@@ -59,9 +72,12 @@ cron(lambda t: gc.collect(), period=600000)
 cron(lambda t: print('.', end=''), period=1000)
 # The motors
 cron(lambda t: shift_stepper.oneStep(), freq=400)
-cron(lambda t: client.publish(topic('motor1'), str(shift_stepper.motor1.stepActual)), period=500)
-cron(lambda t: client.publish(topic('motor2'), str(shift_stepper.motor2.stepActual)), period=500)
-cron(lambda t: client.publish(topic('motor3'), str(shift_stepper.motor3.stepActual)), period=500)
+#cron(lambda t: client.publish(topic('motor1'), str(shift_stepper.motor1.stepActual)), period=500)
+#cron(lambda t: client.publish(topic('motor2'), str(shift_stepper.motor2.stepActual)), period=500)
+#cron(lambda t: client.publish(topic('motor3'), str(shift_stepper.motor3.stepActual)), period=500)
+cron(lambda t: reportIfChanged('motor1', shift_stepper.motor1.stepActual), period=100)
+cron(lambda t: reportIfChanged('motor2', shift_stepper.motor2.stepActual), period=100)
+cron(lambda t: reportIfChanged('motor3', shift_stepper.motor3.stepActual), period=100)
 cron(lambda t: connect.rtcm.update(motor=shift_stepper.savePosition()), period=200)
 
 try:
