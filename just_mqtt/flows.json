@@ -56,7 +56,7 @@
         "expiry": "",
         "broker": "a213f68ed3d1b8de",
         "x": 650,
-        "y": 200,
+        "y": 160,
         "wires": []
     },
     {
@@ -466,7 +466,7 @@
         "z": "8264e5bc0b5255bd",
         "name": "",
         "group": "4e6706b1594f81b5",
-        "order": 3,
+        "order": 4,
         "width": 0,
         "height": 0,
         "passthru": false,
@@ -481,7 +481,7 @@
         "topic": "topic",
         "topicType": "msg",
         "x": 440,
-        "y": 280,
+        "y": 320,
         "wires": [
             [
                 "81586ccee4f0a0ac"
@@ -503,7 +503,7 @@
         "expiry": "",
         "broker": "a213f68ed3d1b8de",
         "x": 650,
-        "y": 260,
+        "y": 300,
         "wires": []
     },
     {
@@ -587,7 +587,7 @@
         "z": "8264e5bc0b5255bd",
         "group": "4e6706b1594f81b5",
         "name": "CSS",
-        "order": 3,
+        "order": 5,
         "width": 0,
         "height": 0,
         "format": "<style>\n    .motorGroupSlider p.label {\n        width: 12em;\n    }\n    .mgsActual {\n        /* Hmm... FIXME */\n    }\n</style>",
@@ -600,6 +600,80 @@
         "y": 40,
         "wires": [
             []
+        ]
+    },
+    {
+        "id": "72f17f0ed5b96210",
+        "type": "mqtt out",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "topic": "board05/led_blink/set",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "a213f68ed3d1b8de",
+        "x": 660,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "556d872553b7bb96",
+        "type": "ui_button",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "group": "4e6706b1594f81b5",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "LED blink 3x",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "3",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 430,
+        "y": 220,
+        "wires": [
+            [
+                "72f17f0ed5b96210"
+            ]
+        ]
+    },
+    {
+        "id": "6306a7a165477f18",
+        "type": "ui_button",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "group": "4e6706b1594f81b5",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "LED blink 5x",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "5",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 430,
+        "y": 260,
+        "wires": [
+            [
+                "72f17f0ed5b96210"
+            ]
         ]
     },
     {
