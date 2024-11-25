@@ -1,9 +1,6 @@
 import machine, time, umqtt.robust, asyncio
 import config, connect, shift_stepper
 
-def topic(suffix):
-    return (config.board_id + '/' + suffix).encode('ascii')
-
 connect.loadRTC()
 connect.setupWifi()
 
@@ -20,6 +17,9 @@ stepper_timer.init(
     freq=400,
     mode=machine.Timer.PERIODIC
 )
+
+def topic(suffix):
+    return (config.board_id + '/' + suffix).encode('ascii')
 
 # The onboard LED is inverted: value(0) means ON, 1 means OFF
 # It's more practical to invert it here, on the device's side
