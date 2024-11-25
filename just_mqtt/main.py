@@ -4,10 +4,15 @@ import config, connect, shift_stepper
 connect.load_rtc()
 connect.setup_wifi()
 
+# See adc_mode.py
 vcc = machine.ADC(1)
 
+# WeMos board: D4 (GPIO2), onboard LED
 led = machine.Pin(2, machine.Pin.OUT)
 led.value(1)
+
+# WeMos board: D3 (GPIO0)
+sg90 = machine.PWM(machine.Pin(0, mode=machine.Pin.OUT))
 
 shift_stepper.set_direction(config.stepper_direction)
 shift_stepper.load_position(connect.rtcm.get('motor'))
@@ -62,13 +67,18 @@ async def every_20s():
 async def mqtt_loop():
     while True:
         client.check_msg()
-        await asyncio.sleep_ms(50)
+        await asyncio.sleep(0)
 
 async def led_blink(times):
     for i in range(times * 2):
         led.value(1 - led.value())
         report_led()
         await asyncio.sleep_ms(250)
+
+async def move_servo(u16):
+    sg90.init(freq=50, duty_u16=u16)
+    await asyncio.sleep_ms(500)
+    sg90.deinit()
 
 topic_callbacks = {
     topic('led/set'): lambda m: led.value(0 if m == b'1' else 1),
@@ -77,6 +87,7 @@ topic_callbacks = {
     topic('motor3/set'): shift_stepper.motor3.target,
     topic('sleep/set'): connect.deep_sleep,
     topic('led_blink/set'): lambda m: asyncio.create_task(led_blink(int(m))),
+    topic('servo/set'): lambda m: asyncio.create_task(move_servo(int(m))),
 }
 
 def mqtt_callback(topic_name, msg):
