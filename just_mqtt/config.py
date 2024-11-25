@@ -21,3 +21,8 @@ wifi_avail = [
     }
 ]
 
+stepper_reverse = {
+    'motor1': True,
+    'motor2': False,
+    'motor3': False
+}
