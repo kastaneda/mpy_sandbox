@@ -1,4 +1,4 @@
-import machine, time, umqtt.robust, gc, micropython, asyncio
+import machine, time, umqtt.robust, asyncio
 import config, connect, shift_stepper
 
 def topic(suffix):
@@ -19,9 +19,9 @@ vcc = machine.ADC(1)
 
 led = machine.Pin(2, machine.Pin.OUT)
 led.value(1)
+
 # The onboard LED is inverted: value(0) means ON, 1 means OFF
 # It's more practical to invert it here, on the device's side
-
 def report_led():
     client.publish(topic('led'), str(1-led.value()))
 
@@ -39,7 +39,8 @@ topic_callbacks = {
     topic('motor1/set'): shift_stepper.motor1.target,
     topic('motor2/set'): shift_stepper.motor2.target,
     topic('motor3/set'): shift_stepper.motor3.target,
-    topic('sleep/set'): connect.deepSleep
+    topic('sleep/set'): connect.deepSleep,
+    topic('led_blink/set'): lambda m: asyncio.create_task(led_blink(int(m)))
 }
 
 def mqtt_callback(topicName, msg):
@@ -49,35 +50,18 @@ def mqtt_callback(topicName, msg):
 client.set_callback(mqtt_callback)
 client.subscribe(topic('+/set'))
 
-crontab = []
-def cron(fn, **kwargs):
-    global crontab
-    # https://docs.micropython.org/en/latest/reference/isr_rules.html#using-micropython-schedule
-    # kwargs['callback'] = lambda t: micropython.schedule(fn, t)
-    kwargs['callback'] = fn
-    kwargs['mode'] = machine.Timer.PERIODIC
-    t = machine.Timer(-1)
-    t.init(**kwargs)
-    crontab.append(t)
-
-recentReports = {}
-recentReportsCount = {}
-def reportIfChanged(name, value, factor=100):
-    global recentReports, recentReportsCount
-    if recentReports.get(name, False) == value:
-        count = recentReportsCount.get(name, 0)
-        if count < factor:
-            recentReportsCount[name] = count+1
-            return
-    client.publish(topic(name), str(value))
-    recentReportsCount[name] = 0
-    recentReports[name] = value
+recent_reports = {}
+def report_changed(name, value):
+    global recent_reports
+    if recent_reports.get(name, False) != value:
+        client.publish(topic(name), str(value))
+        recent_reports[name] = value
 
 async def every100ms():
     while True:
-        reportIfChanged('motor1', shift_stepper.motor1.stepActual)
-        reportIfChanged('motor2', shift_stepper.motor2.stepActual)
-        reportIfChanged('motor3', shift_stepper.motor3.stepActual)
+        report_changed('motor1', shift_stepper.motor1.stepActual)
+        report_changed('motor2', shift_stepper.motor2.stepActual)
+        report_changed('motor3', shift_stepper.motor3.stepActual)
         connect.rtcm.update(motor=shift_stepper.savePosition())
         await asyncio.sleep_ms(100)
 
@@ -92,10 +76,17 @@ async def every20s():
         report_led()
         client.publish(topic('status'), b'1')
         client.publish(topic('vcc'), str(vcc.read()))
+        client.publish(topic('motor1'), str(shift_stepper.motor1.stepActual))
+        client.publish(topic('motor2'), str(shift_stepper.motor2.stepActual))
+        client.publish(topic('motor3'), str(shift_stepper.motor3.stepActual))
         await asyncio.sleep_ms(20_000)
 
-# The one and only task that really must be run on timer
-cron(lambda t: shift_stepper.oneStep(), freq=400)
+stepper_timer = machine.Timer(-1)
+stepper_timer.init(
+    callback=lambda t: shift_stepper.oneStep(),
+    freq=400,
+    mode=machine.Timer.PERIODIC
+)
 
 async def mqtt_loop():
     while True:
@@ -114,6 +105,6 @@ except KeyboardInterrupt:
 finally:
     client.disconnect()
     asyncio.get_event_loop().stop()
-    for t in crontab:
-        t.deinit()
+    stepper_timer.deinit()
     connect.saveRTC()
+
