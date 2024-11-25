@@ -76,9 +76,9 @@ class MyStepper:
 #  bit: 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
 # coil: C4 C3 C2 C1 -- B4 B3 -- B2 B1 -- A4 A3 A2 A1 --
 
-motor1 = MyStepper([ 0b1100 << 1, 0b0110 << 1, 0b0011 << 1, 0b1001 << 1 ])
-motor2 = MyStepper([ 0b11000 << 6, 0b01010 << 6, 0b00011 << 6, 0b10001 << 6 ])
-motor3 = MyStepper([ 0b1100 << 12, 0b0110 << 12, 0b0011 << 12, 0b1001 << 12 ])
+motor1 = MyStepper([0b1100 << 1, 0b0110 << 1, 0b0011 << 1, 0b1001 << 1])
+motor2 = MyStepper([0b11000 << 6, 0b01010 << 6, 0b00011 << 6, 0b10001 << 6])
+motor3 = MyStepper([0b1100 << 12, 0b0110 << 12, 0b0011 << 12, 0b1001 << 12])
 
 def load_position(position):
     try:
@@ -96,12 +96,9 @@ def save_position():
     }
 
 def set_direction(dir_config):
-    if dir_config.get('invert_motor1'):
-        motor1._step_bitmask.reverse()
-    if dir_config.get('invert_motor2'):
-        motor2._step_bitmask.reverse()
-    if dir_config.get('invert_motor3'):
-        motor3._step_bitmask.reverse()
+    if dir_config.get('invert_motor1'): motor1._step_bitmask.reverse()
+    if dir_config.get('invert_motor2'): motor2._step_bitmask.reverse()
+    if dir_config.get('invert_motor3'): motor3._step_bitmask.reverse()
 
 def one_step():
     motor1.update()

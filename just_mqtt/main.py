@@ -76,7 +76,7 @@ topic_callbacks = {
     topic('motor2/set'): shift_stepper.motor2.target,
     topic('motor3/set'): shift_stepper.motor3.target,
     topic('sleep/set'): connect.deep_sleep,
-    topic('led_blink/set'): lambda m: asyncio.create_task(led_blink(int(m)))
+    topic('led_blink/set'): lambda m: asyncio.create_task(led_blink(int(m))),
 }
 
 def mqtt_callback(topic_name, msg):

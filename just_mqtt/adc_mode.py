@@ -28,4 +28,3 @@ def set_adc_mode(mode):
         esp.flash_write(init_sector * sector_size, data)
         print("ADC mode changed in flash; restart to use it!")
         return
-
