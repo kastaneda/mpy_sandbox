@@ -1,19 +1,21 @@
 import machine, time, umqtt.robust, asyncio
 import config, connect, shift_stepper
 
-connect.loadRTC()
-connect.setupWifi()
+connect.load_rtc()
+connect.setup_wifi()
 
 vcc = machine.ADC(1)
 
 led = machine.Pin(2, machine.Pin.OUT)
 led.value(1)
 
-shift_stepper.loadPosition(connect.rtcm.get('motor'))
+shift_stepper.set_direction(config.stepper_reverse)
+shift_stepper.load_position(connect.rtcm.get('motor'))
+
 # The only one background job that really needs timer
 stepper_timer = machine.Timer(-1)
 stepper_timer.init(
-    callback=lambda t: shift_stepper.oneStep(),
+    callback=lambda t: shift_stepper.one_step(),
     freq=400,
     mode=machine.Timer.PERIODIC
 )
@@ -33,29 +35,29 @@ def report_changed(name, value):
         client.publish(topic(name), str(value))
         recent_reports[name] = value
 
-async def every100ms():
+async def every_100ms():
     while True:
-        report_changed('motor1', shift_stepper.motor1.stepActual)
-        report_changed('motor2', shift_stepper.motor2.stepActual)
-        report_changed('motor3', shift_stepper.motor3.stepActual)
-        connect.rtcm.update(motor=shift_stepper.savePosition())
+        report_changed('motor1', shift_stepper.motor1.step_actual)
+        report_changed('motor2', shift_stepper.motor2.step_actual)
+        report_changed('motor3', shift_stepper.motor3.step_actual)
+        connect.rtcm.update(motor=shift_stepper.save_position())
         await asyncio.sleep_ms(100)
 
-async def every1s():
+async def every_1s():
     while True:
         client.ping()
         print('.', end='')
-        await asyncio.sleep_ms(1000)
+        await asyncio.sleep(1)
 
-async def every20s():
+async def every_20s():
     while True:
         report_led()
         client.publish(topic('status'), b'1')
         client.publish(topic('vcc'), str(vcc.read()))
-        client.publish(topic('motor1'), str(shift_stepper.motor1.stepActual))
-        client.publish(topic('motor2'), str(shift_stepper.motor2.stepActual))
-        client.publish(topic('motor3'), str(shift_stepper.motor3.stepActual))
-        await asyncio.sleep_ms(20_000)
+        client.publish(topic('motor1'), str(shift_stepper.motor1.step_actual))
+        client.publish(topic('motor2'), str(shift_stepper.motor2.step_actual))
+        client.publish(topic('motor3'), str(shift_stepper.motor3.step_actual))
+        await asyncio.sleep(20)
 
 async def mqtt_loop():
     while True:
@@ -73,12 +75,12 @@ topic_callbacks = {
     topic('motor1/set'): shift_stepper.motor1.target,
     topic('motor2/set'): shift_stepper.motor2.target,
     topic('motor3/set'): shift_stepper.motor3.target,
-    topic('sleep/set'): connect.deepSleep,
+    topic('sleep/set'): connect.deep_sleep,
     topic('led_blink/set'): lambda m: asyncio.create_task(led_blink(int(m)))
 }
 
-def mqtt_callback(topicName, msg):
-    fn = topic_callbacks.get(topicName, lambda x: None)
+def mqtt_callback(topic_name, msg):
+    fn = topic_callbacks.get(topic_name, lambda x: None)
     fn(msg)
 
 # https://github.com/micropython/micropython-lib/blob/master/micropython/umqtt.simple/README.rst
@@ -93,15 +95,15 @@ client.subscribe(topic('+/set'))
 
 try:
     print('Start MQTT main loop, press Ctrl-C to stop')
-    asyncio.create_task(every100ms())
-    asyncio.create_task(every1s())
-    asyncio.create_task(every20s())
+    asyncio.create_task(every_100ms())
+    asyncio.create_task(every_1s())
+    asyncio.create_task(every_20s())
     asyncio.create_task(mqtt_loop())
     asyncio.get_event_loop().run_forever()
 except KeyboardInterrupt:
     print('\nStopped')
 finally:
     stepper_timer.deinit()
-    connect.saveRTC()
+    connect.save_rtc()
     client.disconnect()
     asyncio.get_event_loop().close()

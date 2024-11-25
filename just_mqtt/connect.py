@@ -11,7 +11,7 @@ def connected():
 def wifi(key=None):
     return rtcm.get('wifi', {}).get(key) if key else rtcm.get('wifi')
 
-def loadRTC():
+def load_rtc():
     global rtcm
     try:
         rtcm = json.loads(rtc.memory())
@@ -19,10 +19,10 @@ def loadRTC():
     except ValueError:
         print('RTC memory not loaded')
 
-def saveRTC():
+def save_rtc():
     rtc.memory(json.dumps(rtcm))
 
-def tryWifi(candidate):
+def try_wifi(candidate):
     print('Connecting to', candidate['essid'], '', end='')
     sta_if.connect(candidate['essid'], candidate['password'])
     for i in range(40):
@@ -39,7 +39,7 @@ def tryWifi(candidate):
     print(' not connected')
     return False
 
-def setupWifi():
+def setup_wifi():
     global rtcm
     sta_if.active(True)
     if connected() and wifi():
@@ -47,23 +47,23 @@ def setupWifi():
         print(sta_if.ifconfig())
         return True
     sta_if.scan()
-    lastWifi = wifi()
-    if lastWifi:
-        if tryWifi(lastWifi):
+    last_wifi = wifi()
+    if last_wifi:
+        if try_wifi(last_wifi):
             return True
     for candidate in config.wifi_avail:
-        if lastWifi != candidate and tryWifi(candidate):
+        if last_wifi != candidate and try_wifi(candidate):
             rtcm['wifi'] = candidate
-            saveRTC()
+            save_rtc()
             return True
     print('Wi-Fi setup failed')
     sta_if.active(False)
     rtcm['wifi'] = False
-    saveRTC()
+    save_rtc()
     return False
 
-def deepSleep(seconds=60):
-    saveRTC()
+def deep_sleep(seconds=60):
+    save_rtc()
     print('Go to deep sleep for', int(seconds), 'seconds')
     sysname = uos.uname().sysname
     if sysname == 'esp32':
