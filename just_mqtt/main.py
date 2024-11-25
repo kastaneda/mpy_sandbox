@@ -53,7 +53,8 @@ crontab = []
 def cron(fn, **kwargs):
     global crontab
     # https://docs.micropython.org/en/latest/reference/isr_rules.html#using-micropython-schedule
-    kwargs['callback'] = lambda t: micropython.schedule(fn, t)
+    # kwargs['callback'] = lambda t: micropython.schedule(fn, t)
+    kwargs['callback'] = fn
     kwargs['mode'] = machine.Timer.PERIODIC
     t = machine.Timer(-1)
     t.init(**kwargs)
@@ -72,37 +73,47 @@ def reportIfChanged(name, value, factor=100):
     recentReportsCount[name] = 0
     recentReports[name] = value
 
-def every100ms(t=None):
-    reportIfChanged('motor1', shift_stepper.motor1.stepActual)
-    reportIfChanged('motor2', shift_stepper.motor2.stepActual)
-    reportIfChanged('motor3', shift_stepper.motor3.stepActual)
-    connect.rtcm.update(motor=shift_stepper.savePosition())
+async def every100ms():
+    while True:
+        reportIfChanged('motor1', shift_stepper.motor1.stepActual)
+        reportIfChanged('motor2', shift_stepper.motor2.stepActual)
+        reportIfChanged('motor3', shift_stepper.motor3.stepActual)
+        connect.rtcm.update(motor=shift_stepper.savePosition())
+        await asyncio.sleep_ms(100)
 
-def every1s(t=None):
-    client.ping()
-    print('.', end='')
+async def every1s():
+    while True:
+        client.ping()
+        print('.', end='')
+        await asyncio.sleep_ms(1000)
 
-def every20s(t=None):
-    report_led()
-    client.publish(topic('status'), b'1')
-    client.publish(topic('vcc'), str(vcc.read()))
-
-cron(every100ms, period=100)
-cron(every1s, period=1000)
-cron(every20s, period=20_000)
-cron(lambda t: gc.collect(), period=600_000)
+async def every20s():
+    while True:
+        report_led()
+        client.publish(topic('status'), b'1')
+        client.publish(topic('vcc'), str(vcc.read()))
+        await asyncio.sleep_ms(20_000)
 
 # The one and only task that really must be run on timer
-cron(lambda t: connect.rtcm.update(motor=shift_stepper.savePosition()), period=200)
+cron(lambda t: shift_stepper.oneStep(), freq=400)
+
+async def mqtt_loop():
+    while True:
+        client.check_msg()
+        await asyncio.sleep_ms(50)
 
 try:
     print('Start MQTT main loop, press Ctrl-C to stop')
-    while True:
-        client.wait_msg()
+    asyncio.create_task(mqtt_loop())
+    asyncio.create_task(every100ms())
+    asyncio.create_task(every1s())
+    asyncio.create_task(every20s())
+    asyncio.get_event_loop().run_forever()
 except KeyboardInterrupt:
     print('\nStopped')
 finally:
     client.disconnect()
+    asyncio.get_event_loop().stop()
     for t in crontab:
         t.deinit()
     connect.saveRTC()
