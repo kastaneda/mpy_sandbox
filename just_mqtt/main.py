@@ -1,4 +1,4 @@
-import machine, time, umqtt.robust, gc, micropython
+import machine, time, umqtt.robust, gc, micropython, asyncio
 import config, connect, shift_stepper
 
 def topic(suffix):
@@ -21,7 +21,18 @@ led = machine.Pin(2, machine.Pin.OUT)
 led.value(1)
 # The onboard LED is inverted: value(0) means ON, 1 means OFF
 # It's more practical to invert it here, on the device's side
-client.publish(topic('led'), str(1-led.value()))
+
+def report_led():
+    client.publish(topic('led'), str(1-led.value()))
+
+async def led_blink(times):
+    for i in range(times):
+        led.value(0)
+        report_led()
+        await asyncio.sleep_ms(250)
+        led.value(1)
+        report_led()
+        await asyncio.sleep_ms(250)
 
 topic_callbacks = {
     topic('led/set'): lambda m: led.value(0 if m == b'1' else 1),
@@ -65,7 +76,7 @@ cron(lambda t: client.ping(), period=1000)
 cron(lambda t: client.publish(topic('vcc'), str(vcc.read())), period=5000)
 # Optional: periodic updates to synchronize device and Node-RED
 cron(lambda t: client.publish(topic('status'), b'1'), period=20000)
-cron(lambda t: client.publish(topic('led'), str(1-led.value())), period=20000)
+cron(lambda t: report_led(), period=20000)
 # Hmmm, dunno if I really need it
 cron(lambda t: gc.collect(), period=600000)
 # Debug things
@@ -86,6 +97,8 @@ try:
         client.wait_msg()
 except KeyboardInterrupt:
     print('\nStopped')
+finally:
+    client.disconnect()
     for t in crontab:
         t.deinit()
     connect.saveRTC()
