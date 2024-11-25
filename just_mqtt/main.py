@@ -72,23 +72,27 @@ def reportIfChanged(name, value, factor=100):
     recentReportsCount[name] = 0
     recentReports[name] = value
 
-cron(lambda t: client.ping(), period=1000)
-cron(lambda t: client.publish(topic('vcc'), str(vcc.read())), period=5000)
-# Optional: periodic updates to synchronize device and Node-RED
-cron(lambda t: client.publish(topic('status'), b'1'), period=20000)
-cron(lambda t: report_led(), period=20000)
-# Hmmm, dunno if I really need it
-cron(lambda t: gc.collect(), period=600000)
-# Debug things
-cron(lambda t: print('.', end=''), period=1000)
-# The motors
-cron(lambda t: shift_stepper.oneStep(), freq=400)
-#cron(lambda t: client.publish(topic('motor1'), str(shift_stepper.motor1.stepActual)), period=500)
-#cron(lambda t: client.publish(topic('motor2'), str(shift_stepper.motor2.stepActual)), period=500)
-#cron(lambda t: client.publish(topic('motor3'), str(shift_stepper.motor3.stepActual)), period=500)
-cron(lambda t: reportIfChanged('motor1', shift_stepper.motor1.stepActual), period=100)
-cron(lambda t: reportIfChanged('motor2', shift_stepper.motor2.stepActual), period=100)
-cron(lambda t: reportIfChanged('motor3', shift_stepper.motor3.stepActual), period=100)
+def every100ms(t=None):
+    reportIfChanged('motor1', shift_stepper.motor1.stepActual)
+    reportIfChanged('motor2', shift_stepper.motor2.stepActual)
+    reportIfChanged('motor3', shift_stepper.motor3.stepActual)
+    connect.rtcm.update(motor=shift_stepper.savePosition())
+
+def every1s(t=None):
+    client.ping()
+    print('.', end='')
+
+def every20s(t=None):
+    report_led()
+    client.publish(topic('status'), b'1')
+    client.publish(topic('vcc'), str(vcc.read()))
+
+cron(every100ms, period=100)
+cron(every1s, period=1000)
+cron(every20s, period=20_000)
+cron(lambda t: gc.collect(), period=600_000)
+
+# The one and only task that really must be run on timer
 cron(lambda t: connect.rtcm.update(motor=shift_stepper.savePosition()), period=200)
 
 try:
