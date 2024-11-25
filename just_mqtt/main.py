@@ -9,7 +9,7 @@ vcc = machine.ADC(1)
 led = machine.Pin(2, machine.Pin.OUT)
 led.value(1)
 
-shift_stepper.set_direction(config.stepper_reverse)
+shift_stepper.set_direction(config.stepper_direction)
 shift_stepper.load_position(connect.rtcm.get('motor'))
 
 # The only one background job that really needs timer

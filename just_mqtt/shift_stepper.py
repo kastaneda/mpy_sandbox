@@ -12,14 +12,25 @@ clock_pin = machine.Pin(14, machine.Pin.OUT)
 # 74HC595: ST_CP (Storage register clock pin)
 latch_pin = machine.Pin(15, machine.Pin.OUT)
 
+# Preferred method: use hardware SPI
 spi = machine.SPI(1, baudrate=20000000, polarity=0, phase=0)
-#spi = machine.SoftSPI(baudrate=100000, polarity=0, phase=0, sck=clock_pin, mosi=data_pin, miso=machine.Pin(12))
+
+# Optional: use software SPI
+#spi = machine.SoftSPI(
+#    baudrate=100000,
+#    polarity=0,
+#    phase=0,
+#    sck=clock_pin,
+#    mosi=data_pin,
+#    miso=machine.Pin(12)
+#)
 
 def write74HC595_spi(data, num_bits=8):
     spi.write(data.to_bytes(num_bits >> 3, 'big'))
     latch_pin.value(1)
     latch_pin.value(0)
 
+# Only for debugging: use own bit-bang version
 def write74HC595_bitbang(data, num_bits=8):
     for i in range(num_bits-1, -1, -1):
         print((data >> i) & 1, end='')
@@ -30,8 +41,10 @@ def write74HC595_bitbang(data, num_bits=8):
     latch_pin.value(0)
     print('')
 
+#write74HC595 = write74HC595_bitbang
 write74HC595 = write74HC595_spi
 
+# Set zero values to the shift register on start
 clock_pin.value(0)
 latch_pin.value(0)
 write74HC595(0, 16)
@@ -83,11 +96,11 @@ def save_position():
     }
 
 def set_direction(dir_config):
-    if dir_config.get('motor1'):
+    if dir_config.get('invert_motor1'):
         motor1._step_bitmask.reverse()
-    if dir_config.get('motor2'):
+    if dir_config.get('invert_motor2'):
         motor2._step_bitmask.reverse()
-    if dir_config.get('motor3'):
+    if dir_config.get('invert_motor3'):
         motor3._step_bitmask.reverse()
 
 def one_step():

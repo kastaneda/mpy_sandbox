@@ -21,8 +21,8 @@ wifi_avail = [
     }
 ]
 
-stepper_reverse = {
-    'motor1': True,
-    'motor2': False,
-    'motor3': False
+stepper_direction = {
+    'invert_motor1': True,
+    'invert_motor2': False,
+    'invert_motor3': False
 }
