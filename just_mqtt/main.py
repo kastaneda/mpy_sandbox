@@ -1,4 +1,4 @@
-import machine, time, umqtt.robust, asyncio
+import machine, time, umqtt.robust, asyncio, gc
 import config, connect, shift_stepper
 
 connect.load_rtc()
@@ -62,6 +62,8 @@ async def every_20s():
         client.publish(topic('motor1'), str(shift_stepper.motor1.step_actual))
         client.publish(topic('motor2'), str(shift_stepper.motor2.step_actual))
         client.publish(topic('motor3'), str(shift_stepper.motor3.step_actual))
+        gc.collect()
+        gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
         await asyncio.sleep(20)
 
 async def mqtt_loop():
