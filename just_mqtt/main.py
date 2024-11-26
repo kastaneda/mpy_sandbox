@@ -75,10 +75,29 @@ async def led_blink(times):
         report_led()
         await asyncio.sleep_ms(250)
 
+task_led_blink = None
+def start_led_blink(times):
+    global task_led_blink
+    if task_led_blink:
+        task_led_blink.cancel()
+    task_led_blink = asyncio.create_task(led_blink(int(times)))
+
 async def move_servo(u16):
-    sg90.init(freq=50, duty_u16=u16)
-    await asyncio.sleep_ms(500)
-    sg90.deinit()
+    try:
+        sg90.init(freq=50, duty_u16=u16)
+        await asyncio.sleep_ms(500)
+    except asyncio.CancelledError:
+        print('X', end='')
+        raise
+    finally:
+        sg90.deinit()
+
+task_move_servo = None
+def start_move_servo(u16):
+    global task_move_servo
+    if task_move_servo:
+        task_move_servo.cancel()
+    task_move_servo = asyncio.create_task(move_servo(int(u16)))
 
 topic_callbacks = {
     topic('led/set'): lambda m: led.value(0 if m == b'1' else 1),
@@ -86,8 +105,10 @@ topic_callbacks = {
     topic('motor2/set'): shift_stepper.motor2.target,
     topic('motor3/set'): shift_stepper.motor3.target,
     topic('sleep/set'): connect.deep_sleep,
-    topic('led_blink/set'): lambda m: asyncio.create_task(led_blink(int(m))),
-    topic('servo/set'): lambda m: asyncio.create_task(move_servo(int(m))),
+    #topic('led_blink/set'): lambda m: asyncio.create_task(led_blink(int(m))),
+    topic('led_blink/set'): start_led_blink,
+    #topic('servo/set'): lambda m: asyncio.create_task(move_servo(int(m))),
+    topic('servo/set'): start_move_servo,
 }
 
 def mqtt_callback(topic_name, msg):
