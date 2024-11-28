@@ -127,13 +127,16 @@ client.publish(topic('status'), b'1')
 client.set_callback(mqtt_callback)
 client.subscribe(topic('+/set'))
 
-try:
-    print('Start MQTT main loop, press Ctrl-C to stop')
+async def main():
     asyncio.create_task(every_100ms())
     asyncio.create_task(every_1s())
     asyncio.create_task(every_20s())
     asyncio.create_task(mqtt_loop())
     asyncio.get_event_loop().run_forever()
+
+try:
+    print('Start MQTT main loop, press Ctrl-C to stop')
+    asyncio.run(main())
 except KeyboardInterrupt:
     print('\nStopped')
 finally:
