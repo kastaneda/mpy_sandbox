@@ -140,4 +140,4 @@ finally:
     stepper_timer.deinit()
     connect.save_rtc()
     client.disconnect()
-    asyncio.get_event_loop().close()
+    asyncio.new_event_loop()
