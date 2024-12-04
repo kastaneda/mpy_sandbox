@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -u
 import asyncio
 import sys
-import test
+import app
 
 def _handle_exception(loop, context):
     print('\nGlobal exception handler')
@@ -9,15 +9,15 @@ def _handle_exception(loop, context):
     loop.stop()
     #sys.exit()
 
-async def main(app):
+async def main():
     loop = asyncio.get_event_loop()
     loop.set_exception_handler(_handle_exception)
     await app.main()
 
 try:
-    app = test.MyTestApp()
+    app.init()
     print('Running the main loop, press Ctrl-C to stop')
-    asyncio.run(main(app))
+    asyncio.run(main())
 except KeyboardInterrupt:
     print('\nStopped')
 except RuntimeError:
