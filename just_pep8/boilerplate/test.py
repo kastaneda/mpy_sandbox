@@ -19,9 +19,9 @@ class MyTestApp:
         await asyncio.sleep(5)
         1/0
 
-    def main(self):
-        asyncio.create_task(self.tick())
+    async def main(self):
         asyncio.create_task(self.bomb())
+        await self.tick()
 
     def deinit(self):
         print('Disconnecting from MQTT broker')
