@@ -1,12 +1,13 @@
 import asyncio
+import time
 
-async def init():
+def init():
     print('Connecting to Wi-Fi...', end='')
-    await asyncio.sleep(1)
+    time.sleep(1)
     print(' done')
 
     print('Connecting to MQTT broker...', end='')
-    await asyncio.sleep(.5)
+    time.sleep(.5)
     print(' done')
 
 async def tick():

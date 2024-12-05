@@ -13,11 +13,10 @@ def _handle_exception(loop, context):
 async def main():
     loop = asyncio.get_event_loop()
     loop.set_exception_handler(_handle_exception)
-    await app.init()
-    print('Running the main loop, press Ctrl-C to stop')
     await app.main()
 
 try:
+    print('Running the main loop, press Ctrl-C to stop')
     asyncio.run(main())
 except KeyboardInterrupt:
     print('\nStopped')
