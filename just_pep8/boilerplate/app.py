@@ -8,6 +8,7 @@ def init():
 
     print('Connecting to MQTT broker...', end='')
     time.sleep(.5)
+    #raise RuntimeError('Cannot connect to MQTT')
     print(' done')
 
 async def tick():

@@ -1,13 +1,14 @@
 #!/usr/bin/python3 -u
 import asyncio
-import sys
 import app
 
 def _handle_exception(loop, context):
     print('\nGlobal exception handler')
     print(context['exception'])
-    loop.stop()
-    #sys.exit()
+    #loop.stop()
+    tasks = asyncio.all_tasks(loop)
+    for task in tasks:
+        task.cancel()
 
 async def main():
     loop = asyncio.get_event_loop()
@@ -20,8 +21,7 @@ try:
     asyncio.run(main())
 except KeyboardInterrupt:
     print('\nStopped')
-except RuntimeError:
-    # RuntimeError: Event loop stopped before Future completed
+except asyncio.exceptions.CancelledError:
     pass
 finally:
     asyncio.new_event_loop()
