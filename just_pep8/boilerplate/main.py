@@ -16,6 +16,7 @@ async def main():
     await app.main()
 
 try:
+    app.init()
     print('Running the main loop, press Ctrl-C to stop')
     asyncio.run(main())
 except KeyboardInterrupt:
