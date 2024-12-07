@@ -51,7 +51,7 @@ def try_wifi(ssid, opt={}):
         if st == network.STAT_NO_AP_FOUND:
             print('AP not found')
         elif st == network.STAT_WRONG_PASSWORD:
-            print('Erong password')
+            print('Wrong password')
         else:
             print('Connection failed')
         wlan.disconnect()
