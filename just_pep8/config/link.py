@@ -2,15 +2,17 @@ import network
 import time
 
 wlan = network.WLAN(network.STA_IF)
+ssid = None
 
 def up(cfg_wifi=None, last_ssid=None):
+    global ssid
     if cfg_wifi == None:
         return wlan.isconnected()
 
     wlan.active(True)
     if last_ssid:
         if try_wifi(cfg_wifi[last_ssid]):
-            return last_ssid
+            return True
     ssid_skip = [last_ssid]
 
     net_avail = wlan.scan()
@@ -20,13 +22,14 @@ def up(cfg_wifi=None, last_ssid=None):
         if ssid in cfg_wifi and ssid not in ssid_skip:
             ssid_skip.append(ssid)
             if try_wifi(ssid, cfg_wifi[ssid]):
-                return ssid
+                return True
 
     for ssid in cfg_wifi:                   # Try everything else
         if ssid not in ssid_skip:
             if try_wifi(ssid, cfg_wifi[ssid]):
-                return ssid
+                return True
 
+    ssid = None
     return False
 
 def try_wifi(ssid, opt={}):
