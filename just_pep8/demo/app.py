@@ -36,12 +36,14 @@ async def bomb():
 async def main():
     asyncio.create_task(mqtt_loop())
     asyncio.create_task(led.main())
-    asyncio.create_task(bomb())
+    #asyncio.create_task(bomb())
     await tick()
 
 def mqtt_callback(t, msg):
     if t == topic('led/set'):
-        led.set_value(msg)
+        led.set_value(int(msg))
+    if t == topic('led_blink/set'):
+        led.set_blink(int(msg))
 
 async def mqtt_loop():
     while True:

@@ -3,7 +3,9 @@ import machine
 
 class MyDemoLED:
     pub = lambda x: None
-#   blink_endless = False
+    blink_endless = False
+    delay_on = 500
+    delay_off = 500
 
     def __init__(self, gpio, callback=None, val_on=1, val_off=0):
         self.led = machine.Pin(gpio, machine.Pin.OUT)
@@ -12,7 +14,7 @@ class MyDemoLED:
         if callback:
             self.pub = callback
         self.value(0)
-#       self.event = new asyncio.Event()
+        self.event_update = asyncio.Event()
 
     def value(self, new_state):
         new_value = self.value_on if new_state else self.value_off
@@ -21,15 +23,26 @@ class MyDemoLED:
             self.pub(new_state)
 
     def set_value(self, new_state):
-#       self.blink_endless = False
+        self.blink_endless = False
         self.value(new_state)
+        self.event_update.set()
 
-#   def set_blink(self, new_state):
-#       self.blink_endless = new_state
+    def set_blink(self, new_state):
+        self.blink_endless = new_state
+        self.event_update.set()
+
+    def toggle_blink(self):
+        self.set_blink(not self.blink_endless)
 
     async def main(self):
         while True:
-            self.value(1)
-            await asyncio.sleep_ms(500)
-            self.value(0)
-            await asyncio.sleep_ms(500)
+            if self.blink_endless:
+                while not self.event_update.is_set():
+                    self.value(1)
+                    await asyncio.sleep_ms(self.delay_on)
+                    self.value(0)
+                    await asyncio.sleep_ms(self.delay_off)
+                self.event_update.clear()
+            else:
+                await self.event_update.wait()
+                self.event_update.clear()
