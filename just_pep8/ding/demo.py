@@ -23,14 +23,12 @@ class MyDemoLED:
             self.pub(new_state)
 
     def set_value(self, new_state):
-        new_state = int(new_state)
         self.blink_endless = False
-        self.value(new_state)
+        self.value(int(new_state))
         self.ev_update.set()
 
     def set_blink(self, new_state):
-        new_state = bool(int(new_state))
-        self.blink_endless = new_state
+        self.blink_endless = bool(int(new_state))
         self.ev_update.set()
 
     def toggle_blink(self):

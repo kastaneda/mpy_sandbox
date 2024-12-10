@@ -23,9 +23,9 @@ def init():
     mq.subscribe(topic(b'+/set'))
     print('Connected')
 
-    led = demo.MyDemoLED(2, pub_to('led'), 0, 1)
+    led = demo.MyDemoLED(2, pub_to(b'led'), 0, 1)
     btn = ding.MyDingDong(0, led.toggle_blink)
-    dbg.init(pub_to('mem_free'))
+    dbg.init(pub_to(b'mem_free'))
 
 async def tick():
     while True:
@@ -33,22 +33,17 @@ async def tick():
         print('.', end='')
         await asyncio.sleep(1)
 
-async def bomb():
-    await asyncio.sleep(5)
-    1/0
-
 async def main():
     asyncio.create_task(mqtt_loop())
     asyncio.create_task(dbg.main())
     asyncio.create_task(led.main())
     asyncio.create_task(btn.main())
-    #asyncio.create_task(bomb())
     await tick()
 
 def mqtt_callback(t, msg):
-    if t == topic('led/set'):
+    if t == topic(b'led/set'):
         led.set_value(msg)
-    if t == topic('led_blink/set'):
+    if t == topic(b'led_blink/set'):
         led.set_blink(msg)
 
 async def mqtt_loop():

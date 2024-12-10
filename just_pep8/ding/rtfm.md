@@ -15,3 +15,5 @@ Files
  - `link.py`: utility module to connect to the Wi-Fi
  - `app.py`:  main application logic and MQTT glue code
  - `demo.py`: the actual firmware payload, to blink the LED
+ - `ding.py`: the bonus track of the firmware, a button handler
+ - `dbg.py`:  helper utility, reports memory status
