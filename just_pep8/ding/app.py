@@ -56,7 +56,10 @@ def topic(suffix):
 
 def pub_to(suffix):
     t = topic(suffix)
-    return lambda msg: mq.publish(t, str(msg))
+    def pub(msg):
+        if mq and mq.sock:
+            mq.publish(t, str(msg))
+    return pub
 
 def deinit():
     if mq and mq.sock:
