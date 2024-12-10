@@ -11,7 +11,11 @@ async def tick():
         await asyncio.sleep(1)
 
 async def bomb():
+    await asyncio.sleep(3)
+    led.set_blink(True)
     await asyncio.sleep(5)
+    led.set_value(1)
+    await asyncio.sleep(3)
     1/0
 
 async def main():
