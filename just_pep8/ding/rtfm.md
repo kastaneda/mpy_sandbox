@@ -17,3 +17,12 @@ Files
  - `demo.py`: the actual firmware payload, to blink the LED
  - `ding.py`: the bonus track of the firmware, a button handler
  - `dbg.py`:  helper utility, reports memory status
+
+
+To-Do
+-----
+
+ - It would be nice to automatically reconnect to Wi-Fi and MQTT broker.
+   Indeed, it's damn hard to do it properly.
+ - It would be nice if LED and button can work offline.
+   Publish callback can be replaced with `lambda m: None` or similar.
