@@ -5,9 +5,7 @@ import demo
 import umqtt.simple
 
 def init():
-    global mq
-    demo.init(pub_to('led'))
-
+    global mq, led
     if not link.up(cfg.wifi):
         raise RuntimeError('Cannot connect to Wi-Fi')
 
@@ -23,6 +21,8 @@ def init():
     mq.subscribe(topic(b'+/set'))
     print('Connected')
 
+    led = demo.MyDemoLED(2, pub_to('led'), 0, 1)
+
 async def tick():
     while True:
         mq.ping()
@@ -35,13 +35,13 @@ async def bomb():
 
 async def main():
     asyncio.create_task(mqtt_loop())
-    asyncio.create_task(demo.blink())
+    asyncio.create_task(led.main())
     asyncio.create_task(bomb())
     await tick()
 
 def mqtt_callback(t, msg):
-    # FIXME
-    pass
+    if t == topic('led/set'):
+        led.set_value(msg)
 
 async def mqtt_loop():
     while True:
@@ -53,7 +53,7 @@ def topic(suffix):
 
 def pub_to(suffix):
     t = topic(suffix)
-    return lambda msg: mq.publish(t, msg)
+    return lambda msg: mq.publish(t, str(msg))
 
 def deinit():
     if mq and mq.sock:
