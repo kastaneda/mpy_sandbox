@@ -2,19 +2,17 @@ import asyncio
 import machine
 
 class MyDemoLED:
-    pub = lambda x: None
     blink_endless = False
     delay_on = 500
     delay_off = 500
 
-    def __init__(self, gpio, callback=None, val_on=1, val_off=0):
-        self.led = machine.Pin(gpio, machine.Pin.OUT)
+    def __init__(self, gpio, callback, val_on=1, val_off=0):
+        self.ev_update = asyncio.Event()
+        self.pub = callback
         self.value_on = val_on
         self.value_off = val_off
-        if callback:
-            self.pub = callback
+        self.led = machine.Pin(gpio, machine.Pin.OUT)
         self.value(0)
-        self.ev_update = asyncio.Event()
 
     def value(self, new_state):
         new_value = self.value_on if new_state else self.value_off
