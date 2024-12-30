@@ -47,4 +47,9 @@ def step(t=None):
     write74HC595(m1.output | m2.output | m3.output, 2)
 
 def deinit():
-    tim.deinit()
+    global tim
+    if tim:
+        tim.deinit()
+        tim = None
+
+tim = None

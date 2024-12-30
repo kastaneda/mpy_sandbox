@@ -1,14 +1,29 @@
 import gc
 print('Free memory:', gc.mem_free())
 
-#import link
-#import cfg
-#link.up(cfg.wifi)
-#print('Free memory:', gc.mem_free())
+import asyncio
+import sys
+import app
 
-#gc.collect()
-#print('Free memory:', gc.mem_free())
+def _handle_exception(loop, context):
+    print('\nGlobal exception handler')
+    sys.print_exception(context['exception'])
+    sys.exit()
 
-import drv
-drv.init()
-print('Free memory:', gc.mem_free())
+async def main():
+    loop = asyncio.get_event_loop()
+    loop.set_exception_handler(_handle_exception)
+    await app.main()
+
+try:
+    app.init()
+    gc.collect()
+    print('Free memory:', gc.mem_free())
+    print('Running the main loop, press Ctrl-C to stop')
+    asyncio.run(main())
+except KeyboardInterrupt:
+    print('\nStopped')
+finally:
+    asyncio.new_event_loop()
+    app.deinit()
+    print('Free memory:', gc.mem_free())

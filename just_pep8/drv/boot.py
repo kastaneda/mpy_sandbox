@@ -1,5 +1,4 @@
-import esp
-esp.osdebug(0) # UART 0
+#import esp
 #esp.osdebug(None)
 
 #import os, machine
