@@ -60,6 +60,7 @@ async def main():
     asyncio.create_task(drv_report(drv.m1, pub_to('motor1')))
     asyncio.create_task(drv_report(drv.m2, pub_to('motor2')))
     asyncio.create_task(drv_report(drv.m3, pub_to('motor3')))
+    asyncio.create_task(sg90.main())
     await tick()
 
 def mqtt_callback(t, msg):
