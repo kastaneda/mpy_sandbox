@@ -4,11 +4,12 @@ import dbg
 import demo
 import ding
 import drv
+import dsrv
 import link
 import umqtt.simple
 
 def init():
-    global mq, led, btn
+    global mq, led, btn, sg90
     if not link.up(cfg.wifi):
         raise RuntimeError('Cannot connect to Wi-Fi')
 
@@ -24,11 +25,11 @@ def init():
     mq.subscribe(topic(b'+/set'))
     print('Connected')
 
-    led = demo.MyDemoLED(2, pub_to(b'led'), 0, 1)
-    btn = ding.MyDingDong(0, led.toggle_blink)
+    led = demo.MyDemoLED(2, pub_to(b'led'), 0, 1) # pin D4, built-in LED
+    btn = ding.MyDingDong(0, led.toggle_blink) # pin D3
     dbg.init(pub_to(b'mem_free'))
-
     drv.init()
+    sg90 = dsrv.MyDelayServo(4) # pin D2
 
 async def tick():
     while True:
@@ -72,6 +73,8 @@ def mqtt_callback(t, msg):
         drv.m2.go(msg)
     if t == topic(b'motor3/set'):
         drv.m3.go(msg)
+    if t == topic(b'servo/set'):
+        sg90.go(msg)
 
 async def mqtt_loop():
     while True:
