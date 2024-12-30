@@ -38,12 +38,9 @@ def init():
     m3 = My28BYJ48((0b1100 << 12, 0b0110 << 12, 0b0011 << 12, 0b1001 << 12))
 
     tim = machine.Timer(-1)
-    tim.init(
-        callback=one_step,
-        freq=400,
-        mode=machine.Timer.PERIODIC)
+    tim.init(callback=step, freq=400, mode=machine.Timer.PERIODIC)
 
-def one_step(t=None):
+def step(t=None):
     m1.up()
     m2.up()
     m3.up()
