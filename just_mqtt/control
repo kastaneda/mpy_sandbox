@@ -1,0 +1,17 @@
+#!/bin/sh
+while /bin/true; do
+    COMMAND=$(whiptail --title "Remote control tool" \
+        --menu "The device is controlled over MQTT\nA command is a specific message to the specified topic" 17 72 8 \
+            "board06/led/set 1"         "        Turn LED on" \
+            "board06/led/set 0"         "        Turn LED off" \
+            "board06/led_blink/set 1"   "        Start blinking" \
+            "board06/led_blink/set 0"   "        Stop blinking" \
+        3>&2 2>&1 1>&3)
+    if [ $? -gt 0 ]; then
+        break
+    fi
+    TOPIC=$(echo $COMMAND | cut -f1 -d" ")
+    MESSAGE=$(echo $COMMAND | cut -f2 -d" ")
+    mosquitto_pub -h 192.168.0.82 -t $TOPIC -m $MESSAGE
+done
+
