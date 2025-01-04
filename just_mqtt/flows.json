@@ -722,6 +722,110 @@
         "wires": []
     },
     {
+        "id": "0cb0df64e5c63c9e",
+        "type": "mqtt in",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "topic": "board05/free_mem",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a213f68ed3d1b8de",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 960,
+        "wires": [
+            [
+                "587a0b20640b03c8"
+            ]
+        ]
+    },
+    {
+        "id": "587a0b20640b03c8",
+        "type": "ui_text",
+        "z": "8264e5bc0b5255bd",
+        "group": "4e6706b1594f81b5",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Free memory",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 440,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "4c6781c61fbf1ebe",
+        "type": "mqtt in",
+        "z": "8264e5bc0b5255bd",
+        "name": "",
+        "topic": "lol/controls",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a213f68ed3d1b8de",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 320,
+        "wires": [
+            [
+                "3e58fc0f4cdc9ec8",
+                "6739b078063cd7ee"
+            ]
+        ]
+    },
+    {
+        "id": "3e58fc0f4cdc9ec8",
+        "type": "function",
+        "z": "8264e5bc0b5255bd",
+        "name": "get X",
+        "func": "if (msg.payload['x']) {\n    msg.payload = msg.payload['x'] * 40;\n} else {\n    msg = null\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 210,
+        "y": 380,
+        "wires": [
+            [
+                "f15742a779d23e7f"
+            ]
+        ]
+    },
+    {
+        "id": "6739b078063cd7ee",
+        "type": "function",
+        "z": "8264e5bc0b5255bd",
+        "name": "get Y",
+        "func": "if (msg.payload['y']) {\n    msg.payload = 4950 + msg.payload['y'] * 310;\n} else {\n    msg = null\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 190,
+        "y": 420,
+        "wires": [
+            [
+                "f4ff8c4a1479083a"
+            ]
+        ]
+    },
+    {
         "id": "4e6706b1594f81b5",
         "type": "ui_group",
         "name": "Main",
