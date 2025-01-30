@@ -7,3 +7,5 @@ devices = i2c.scan()
 if devices:
     for d in devices:
         print(hex(d))
+else:
+    print('No I2C devices found')
