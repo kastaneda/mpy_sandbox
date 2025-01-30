@@ -4,7 +4,7 @@ import neopixel
 import time
 
 # Configure the NeoPixel pin and number of LEDs
-pin = Pin(15, Pin.OUT)  # Change pin number as per your wiring
+pin = Pin(16, Pin.OUT)  # Change pin number as per your wiring
 num_leds = 1            # Number of LEDs connected
 
 # Initialize the NeoPixel strip
@@ -32,6 +32,6 @@ try:
         for i in range(256):  # Iterate through the color wheel
             color = color_wheel(i)
             set_color(*color)
-            time.sleep(0.05)  # Short delay to create a smooth transition
+            time.sleep(0.005) # Short delay to create a smooth transition
 except KeyboardInterrupt:
     set_color(0, 0, 0)        # Turn off on exit
