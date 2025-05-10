@@ -1,0 +1,29 @@
+#!/bin/sh
+
+for c in `seq 5`
+do
+  echo "================================================"
+  echo "                * * * Step $c * * *"
+  echo "================================================"
+  echo ""
+  echo "Put the tube to the \e[31mSOURCE\e[0m glass"
+  echo "Press ENTER when ready..."
+  read k
+  echo "Moving to position 0..."
+  mosquitto_pub -h 192.168.0.82 -t board05/motor1/set -m 0
+  sleep 12
+  echo "Moving to position -60K..."
+  mosquitto_pub -h 192.168.0.82 -t board05/motor1/set -m -60000
+  sleep 150
+  echo ""
+  echo "Put the tube to the \e[32mTARGET\e[0m glass"
+  echo "Press ENTER when ready..."
+  read k
+  echo "Moving to position -4K..."
+  mosquitto_pub -h 192.168.0.82 -t board05/motor1/set -m -4000
+  sleep 140
+  echo ""
+done
+
+echo "================================================"
+echo "That's all!"
