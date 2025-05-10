@@ -2,4 +2,4 @@
 HOST="192.168.0.82"
 SUBSCRIBE="#"
 #mosquitto_sub -h "$HOST" -t "$SUBSCRIBE" -v
-mosquitto_sub -h "$HOST" -t "$SUBSCRIBE" -F "\e[30m%I\e[0m topic=\e[32m%-24.24t\e[0m message=\e[36m%p\e[0m"
+mosquitto_sub -h "$HOST" -t "$SUBSCRIBE" -F "\e[36m%I\e[0m topic=\e[33m%-24.24t\e[0m message=\e[32m%p\e[0m"
