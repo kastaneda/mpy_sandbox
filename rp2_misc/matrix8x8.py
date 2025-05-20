@@ -2,6 +2,7 @@ from machine import Pin
 import neopixel
 import time
 import random
+import colorsys
 
 pin = Pin(14, Pin.OUT)
 num_leds = 64
@@ -13,10 +14,9 @@ try:
         time.sleep(0.05)
         # a random pixel
         dot_addr = random.randrange(len(np))
-        dot_r = random.randrange(45)
-        dot_g = random.randrange(20)
-        dot_b = random.randrange(80)
-        dot = (dot_addr, (dot_r, dot_g, dot_b))
+        rgb = colorsys.hsv_to_rgb(random.random(), 1, .1)
+        rgb_int = [int(color*256) for color in rgb]
+        dot = (dot_addr, rgb_int)
         dots = dots[1:] + [dot]
         print(dot)
         # update
