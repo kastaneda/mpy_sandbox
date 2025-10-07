@@ -1,7 +1,7 @@
 #!/bin/sh
 COMMAND=""
 while /bin/true; do
-    COMMAND=$(whiptail --title "Remote control tool" --default-item "$COMMAND" \
+    COMMAND=$(whiptail --title "MQTT command and control" --default-item "$COMMAND" \
         --menu "The device is controlled over MQTT\nA command is a specific message to the specified topic" 17 72 8 \
             "dev/board05/led/set 1"         "        Turn LED on" \
             "dev/board05/led/set 0"         "        Turn LED off" \
@@ -13,4 +13,3 @@ while /bin/true; do
     MESSAGE=$(echo $COMMAND | cut -f2 -d" ")
     mosquitto_pub -h 192.168.0.82 -t $TOPIC -m $MESSAGE
 done
-
