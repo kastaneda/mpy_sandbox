@@ -1,6 +1,7 @@
 import asyncio
 import gc
 import time
+import network
 import machine
 import umqtt.simple
 
@@ -86,11 +87,12 @@ class LocalManager:
         self.app = app
 
     def handle(self, topic, payload):
-        if topic == 'btn_D3':
+        if topic == 'btn_D2':
             self.app.handle('led_D4/set', payload)
 
 class WirelessMQTT:
     def __init__(self, server, prefix, **kwargs):
+        self.wlan = network.WLAN(network.STA_IF)
         self.prefix = prefix+'/'
         kwargs['keepalive'] = 2
         self.mq = umqtt.simple.MQTTClient(prefix, server, **kwargs)
@@ -100,7 +102,7 @@ class WirelessMQTT:
 
     async def main(self, app):
         self.app = app
-        while not wlan.isconnected():
+        while not self.wlan.isconnected():
             await asyncio.sleep(0)
         self.mq.connect()
         self.mq.publish(self.prefix+'online', b'1', retain=True)
@@ -126,10 +128,11 @@ class WirelessMQTT:
         self.nodup_t = self.nodup_p = None
 
     def handle(self, topic, payload):
-        if isinstance(payload, int):
-            payload = str(payload)
-        if topic != self.nodup_t or payload != self.nodup_p:
-            self.mq.publish(self.prefix+topic, payload)
+        if self.mq and self.mq.sock:
+            if isinstance(payload, int):
+                payload = str(payload)
+            if topic != self.nodup_t or payload != self.nodup_p:
+                self.mq.publish(self.prefix+topic, payload)
 
 class LolStats:
     async def main(self, app):
@@ -159,9 +162,9 @@ try:
     led = machine.Pin(2, machine.Pin.OUT)
     app.add(BlinkingLED(led, 'led_D4', True))
 
-    # WeMos D1 mini, pin D3 = GPIO0
-    btn = machine.Pin(0, machine.Pin.IN)
-    app.add(SimpleButton(btn, 'btn_D3', True))
+    # WeMos D1 mini, pin D2 = GPIO4
+    btn = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
+    app.add(SimpleButton(btn, 'btn_D2', True))
 
     # somewhere in 'boot.py':
     # import network
