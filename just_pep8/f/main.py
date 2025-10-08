@@ -1,5 +1,6 @@
 import asyncio
 import machine
+import umqtt.simple
 
 class App:
     tasks = []
@@ -86,6 +87,48 @@ class LocalManager:
         if topic == 'btn_D3':
             self.app.handle('led_D4/set', payload)
 
+class WirelessMQTT:
+    def __init__(self, server, prefix, **kwargs):
+        self.prefix = prefix+'/'
+        kwargs['keepalive'] = 2
+        self.mq = umqtt.simple.MQTTClient(prefix, server, **kwargs)
+        self.mq.set_last_will(self.prefix+'online', b'0', retain=True)
+        self.mq.set_callback(self.mqtt_callback)
+        self.nodup_t = self.nodup_p = None
+
+    async def main(self, app):
+        self.app = app
+        while not wlan.isconnected():
+            await asyncio.sleep(0)
+        self.mq.connect()
+        self.mq.publish(self.prefix+'online', b'1', retain=True)
+        self.mq.subscribe(self.prefix+'+/set')
+        await asyncio.gather(self.ping(), self.check_msg())
+
+    async def ping(self):
+        while True:
+            self.mq.ping()
+            await asyncio.sleep(1)
+
+    async def check_msg(self):
+        while True:
+            self.mq.check_msg()
+            await asyncio.sleep(0)
+
+    def mqtt_callback(self, topic, payload):
+        topic, payload = topic.decode(), payload.decode()
+        if topic.startswith(self.prefix):
+            topic = topic[len(self.prefix):]
+            self.nodup_t, self.nodup_p = topic, payload
+            app.handle(topic, payload)
+        self.nodup_t = self.nodup_p = None
+
+    def handle(self, topic, payload):
+        if isinstance(payload, int):
+            payload = str(payload)
+        if topic != self.nodup_t or payload != self.nodup_p:
+            self.mq.publish(self.prefix+topic, payload)
+
 try:
     app = App()
 
@@ -96,6 +139,14 @@ try:
     # WeMos D1 mini, pin D3 = GPIO0
     btn = machine.Pin(0, machine.Pin.IN)
     app.add(SimpleButton(btn, 'btn_D3', True))
+
+    # somewhere in 'boot.py':
+    # import network
+    # wlan = network.WLAN(network.STA_IF)
+    # wlan.active(True)
+    # if not wlan.isconnected():
+    #     wlan.connect('ssid', 'password')
+    app.add(WirelessMQTT('192.168.0.82', 'board99'))
 
     app.add(DebugDots())
     app.add(LocalManager(app))
