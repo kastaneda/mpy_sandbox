@@ -124,7 +124,7 @@ class WirelessMQTT:
         if topic.startswith(self.prefix):
             topic = topic[len(self.prefix):]
             self.nodup_t, self.nodup_p = topic, payload
-            app.handle(topic, payload)
+            self.app.handle(topic, payload)
         self.nodup_t = self.nodup_p = None
 
     def handle(self, topic, payload):
