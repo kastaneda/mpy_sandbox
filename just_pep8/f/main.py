@@ -1,4 +1,6 @@
 import asyncio
+import gc
+import time
 import machine
 import umqtt.simple
 
@@ -129,6 +131,27 @@ class WirelessMQTT:
         if topic != self.nodup_t or payload != self.nodup_p:
             self.mq.publish(self.prefix+topic, payload)
 
+class LolStats:
+    async def main(self, app):
+        t0 = time.ticks_ms()
+        loop_count = 0
+        while True:
+            loop_count = loop_count+1
+            await asyncio.sleep(0)
+            t1 = time.ticks_ms()
+            delta = time.ticks_diff(t1, t0)
+            if delta >= 10000:
+                app.handle('loops', str(loop_count/10))
+                loop_count = 0
+                t0 = t1
+
+class LolMemStats:
+    async def main(self, app):
+        while True:
+            await asyncio.sleep(5)
+            gc.collect()
+            app.handle('mem_free', gc.mem_free())
+
 try:
     app = App()
 
@@ -150,6 +173,8 @@ try:
 
     app.add(DebugDots())
     app.add(LocalManager(app))
+    app.add(LolStats())
+    app.add(LolMemStats())
     asyncio.run(app.main())
 except KeyboardInterrupt:
     print('Stopped')
