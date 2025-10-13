@@ -42,7 +42,10 @@ class BlinkingLED:
 
     def handle(self, topic, payload):
         if topic == self.name_set:
-            self.is_blinking = bool(int(payload))
+            try:
+                self.is_blinking = bool(int(payload))
+            except ValueError:
+                pass
 
 class SimpleButton:
     def __init__(self, gpio, name, invert=False):
