@@ -81,27 +81,42 @@ class LocalManager:
             self.app.handle('led/set', payload)
 
 import sys
-import select
+#import select
 class StdioConnector:
     def __init__(self, prefix):
         self.prefix = prefix+'/'
         self.nodup_t = self.nodup_p = None
 
+#    async def main(self, app):
+#        poller = select.poll()
+#        poller.register(sys.stdin, select.POLLIN)
+#        while True:
+#            res = poller.poll(0)
+#            if res:
+#                line = sys.stdin.readline().strip()
+#                if line:
+#                    topic, payload = line.split(' ', 1)
+#                    if topic.startswith(self.prefix):
+#                        topic = topic[len(self.prefix):]
+#                        self.nodup_t, self.nodup_p = topic, payload
+#                        app.handle(topic, payload)
+#                        self.nodup_t = self.nodup_p = None
+#            await asyncio.sleep(0)
+
     async def main(self, app):
-        poller = select.poll()
-        poller.register(sys.stdin, select.POLLIN)
+        reader = asyncio.StreamReader(sys.stdin)
         while True:
-            res = poller.poll(0)
-            if res:
-                line = sys.stdin.readline().strip()
-                if line:
-                    topic, payload = line.split(' ', 1)
-                    if topic.startswith(self.prefix):
-                        topic = topic[len(self.prefix):]
-                        self.nodup_t, self.nodup_p = topic, payload
-                        app.handle(topic, payload)
-                        self.nodup_t = self.nodup_p = None
-            await asyncio.sleep(0)
+            line = await reader.readline()
+            if isinstance(line, bytes):
+                line = line.decode()
+            line = line.strip()
+            if line:
+                topic, payload = line.split(' ', 1)
+                if topic.startswith(self.prefix):
+                    topic = topic[len(self.prefix):]
+                    self.nodup_t, self.nodup_p = topic, payload
+                    app.handle(topic, payload)
+                    self.nodup_t = self.nodup_p = None
     
     def handle(self, topic, payload):
         if topic != self.nodup_t or payload != self.nodup_p:
