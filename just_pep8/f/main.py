@@ -1,4 +1,5 @@
 import asyncio
+import machine
 
 class App:
     tasks = []
@@ -60,15 +61,25 @@ class BlinkingLED:
             self.is_blinking = bool(int(payload))
 
 class SimpleButton:
-    def __init__(self, gpio, name):
+    def __init__(self, gpio, name, invert=False):
         self.gpio = gpio
+        # Why? Because of this:
+        # AttributeError: 'Signal' object has no attribute 'irq'
+        if invert:
+            self.gpio = machine.Signal(gpio, invert=True)
         self.name = name
         self.prev_state = -1
+        self.ev_click = asyncio.Event()
+        self.ev_click.set()
+        gpio.irq(
+            trigger=machine.Pin.IRQ_RISING | machine.Pin.IRQ_FALLING,
+            handler=self.ev_click.set)
 
     # TODO: add some debouncing
     async def main(self, app):
         while True:
-            await asyncio.sleep(0)
+            await self.ev_click.wait()
+            self.ev_click.clear()
             state = self.gpio.value()
             if state != self.prev_state:
                 app.handle(self.name, state)
@@ -128,7 +139,6 @@ class WirelessMQTT:
             if topic != self.nodup_t or payload != self.nodup_p:
                 self.mq.publish(self.prefix+topic, payload)
 
-
 import time
 class DebugSpeed:
     async def main(self, app):
@@ -152,18 +162,17 @@ class DebugMem:
             gc.collect()
             app.handle('mem_free', gc.mem_free())
 
-from machine import Pin, Signal
-
 try:
     app = App()
 
     # WeMos D1 mini, pin D4 = GPIO2, inverted (active-low)
-    led = Signal(2, Pin.OUT, invert=True)
+    led = machine.Signal(2, machine.Pin.OUT, invert=True)
     app.add(BlinkingLED(led, 'led'))
 
     # WeMos D1 mini, pin D2 = GPIO4, pull-up (active-low)
-    btn = Signal(4, Pin.IN, Pin.PULL_UP, invert=True)
-    app.add(SimpleButton(btn, 'btn'))
+    #btn = Signal(4, Pin.IN, Pin.PULL_UP, invert=True)
+    btn = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
+    app.add(SimpleButton(btn, 'btn', True))
 
     # Local connection: 'btn' -> 'led/set'
     app.add(LocalManager(app))
