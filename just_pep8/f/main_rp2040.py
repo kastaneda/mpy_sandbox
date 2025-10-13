@@ -1,9 +1,5 @@
 import asyncio
 import machine
-import sys
-import select
-import time
-import gc
 
 class App:
     tasks = []
@@ -24,20 +20,18 @@ class App:
             listener.handle(topic, payload)
 
 class BlinkingLED:
-    def __init__(self, gpio, name, inverted=False):
+    def __init__(self, gpio, name):
         self.gpio = gpio
         self.name = name
         self.name_set = name+'/set'
-        self.inverted = inverted
         self.is_blinking = False
-        self.value = False
-        gpio.value(int(inverted))
+        gpio.value(0)
 
     def set_value(self, app, value):
-        if value != self.value:
-            self.value = value
-            self.gpio.value(int(value ^ self.inverted))
-            app.handle(self.name, int(value))
+        value = int(value)
+        if value != self.gpio.value():
+            self.gpio.value(value)
+            app.handle(self.name, value)
 
     async def main(self, app):
         while True:
@@ -51,21 +45,43 @@ class BlinkingLED:
             self.is_blinking = bool(int(payload))
 
 class SimpleButton:
-    def __init__(self, gpio, name, inverted=False):
+    def __init__(self, gpio, name, invert=False):
         self.gpio = gpio
+        # Why? Because of this:
+        # AttributeError: 'Signal' object has no attribute 'irq'
+        if invert:
+            self.gpio = machine.Signal(gpio, invert=True)
         self.name = name
-        self.inverted = inverted
         self.prev_state = -1
+        self.ev_click = asyncio.Event()
+        self.ev_click.set()
+        gpio.irq(
+            trigger=machine.Pin.IRQ_RISING | machine.Pin.IRQ_FALLING,
+            handler=self.click)
+
+    def click(self, pin):
+        self.ev_click.set()
 
     # TODO: add some debouncing
     async def main(self, app):
         while True:
-            await asyncio.sleep(0)
-            state = bool(self.gpio.value()) ^ self.inverted
+            await self.ev_click.wait()
+            self.ev_click.clear()
+            state = self.gpio.value()
             if state != self.prev_state:
-                app.handle(self.name, int(state))
+                app.handle(self.name, state)
                 self.prev_state = state
 
+class LocalManager:
+    def __init__(self, app):
+        self.app = app
+
+    def handle(self, topic, payload):
+        if topic == 'btn':
+            self.app.handle('led/set', payload)
+
+import sys
+import select
 class StdioConnector:
     def __init__(self, prefix):
         self.prefix = prefix+'/'
@@ -91,7 +107,8 @@ class StdioConnector:
         if topic != self.nodup_t or payload != self.nodup_p:
             print(self.prefix+topic, payload)
 
-class LolStats:
+import time
+class DebugSpeed:
     async def main(self, app):
         t0 = time.ticks_ms()
         loop_count = 0
@@ -105,20 +122,13 @@ class LolStats:
                 loop_count = 0
                 t0 = t1
 
-class LolMemStats:
+import gc
+class DebugMem:
     async def main(self, app):
         while True:
             await asyncio.sleep(5)
             gc.collect()
             app.handle('mem_free', gc.mem_free())
-
-class LocalManager:
-    def __init__(self, app):
-        self.app = app
-
-    def handle(self, topic, payload):
-        if topic == 'btn':
-            self.app.handle('led/set', payload)
 
 try:
     app = App()
@@ -131,13 +141,15 @@ try:
     btn = machine.Pin(11, machine.Pin.IN, machine.Pin.PULL_UP)
     app.add(SimpleButton(btn, 'btn', True))
 
+    # Local connection: 'btn' -> 'led/set'
+    app.add(LocalManager(app))
+
     # https://test.de.co.ua/2024/02/20/arduino-mqtt.html
     # https://test.de.co.ua/2024/03/18/mqtt-oop.html
     app.add(StdioConnector('board98'))
 
-    app.add(LocalManager(app))
-    app.add(LolStats())
-    app.add(LolMemStats())
+    app.add(DebugSpeed())
+    app.add(DebugMem())
     asyncio.run(app.main())
 except KeyboardInterrupt:
     print('Stopped')
