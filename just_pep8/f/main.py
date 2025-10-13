@@ -73,7 +73,10 @@ class SimpleButton:
         self.ev_click.set()
         gpio.irq(
             trigger=machine.Pin.IRQ_RISING | machine.Pin.IRQ_FALLING,
-            handler=self.ev_click.set)
+            handler=self.click)
+
+    def click(self, pin):
+        self.ev_click.set()
 
     # TODO: add some debouncing
     async def main(self, app):
