@@ -145,6 +145,12 @@ class DebugMem:
             gc.collect()
             app.handle('mem_free', gc.mem_free())
 
+class DebugPing:
+    async def main(self, app):
+        while True:
+            await asyncio.sleep(1)
+            app.handle('ping', 1)
+
 try:
     app = App()
 
@@ -165,6 +171,7 @@ try:
 
     app.add(DebugSpeed())
     app.add(DebugMem())
+    app.add(DebugPing())
     asyncio.run(app.main())
 except KeyboardInterrupt:
     print('Stopped')
