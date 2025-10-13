@@ -1,9 +1,4 @@
 import asyncio
-import gc
-import time
-import network
-import machine
-import umqtt.simple
 
 class App:
     tasks = []
@@ -23,7 +18,7 @@ class App:
         for listener in self.listeners:
             listener.handle(topic, payload)
 
-class DebugDots:
+class DebugPrint:
     dots = False
 
     async def main(self, app):
@@ -40,20 +35,18 @@ class DebugDots:
         print(topic, payload)
 
 class BlinkingLED:
-    def __init__(self, gpio, name, inverted=False):
+    def __init__(self, gpio, name):
         self.gpio = gpio
         self.name = name
         self.name_set = name+'/set'
-        self.inverted = inverted
         self.is_blinking = False
-        self.value = False
-        gpio.value(int(inverted))
+        gpio.value(0)
 
     def set_value(self, app, value):
-        if value != self.value:
-            self.value = value
-            self.gpio.value(int(value ^ self.inverted))
-            app.handle(self.name, int(value))
+        value = int(value)
+        if value != self.gpio.value():
+            self.gpio.value(value)
+            app.handle(self.name, value)
 
     async def main(self, app):
         while True:
@@ -67,19 +60,18 @@ class BlinkingLED:
             self.is_blinking = bool(int(payload))
 
 class SimpleButton:
-    def __init__(self, gpio, name, inverted=False):
+    def __init__(self, gpio, name):
         self.gpio = gpio
         self.name = name
-        self.inverted = inverted
         self.prev_state = -1
 
     # TODO: add some debouncing
     async def main(self, app):
         while True:
             await asyncio.sleep(0)
-            state = bool(self.gpio.value()) ^ self.inverted
+            state = self.gpio.value()
             if state != self.prev_state:
-                app.handle(self.name, int(state))
+                app.handle(self.name, state)
                 self.prev_state = state
 
 class LocalManager:
@@ -87,9 +79,11 @@ class LocalManager:
         self.app = app
 
     def handle(self, topic, payload):
-        if topic == 'btn_D2':
-            self.app.handle('led_D4/set', payload)
+        if topic == 'btn':
+            self.app.handle('led/set', payload)
 
+import network
+import umqtt.simple
 class WirelessMQTT:
     def __init__(self, server, prefix, **kwargs):
         self.wlan = network.WLAN(network.STA_IF)
@@ -134,7 +128,9 @@ class WirelessMQTT:
             if topic != self.nodup_t or payload != self.nodup_p:
                 self.mq.publish(self.prefix+topic, payload)
 
-class LolStats:
+
+import time
+class DebugSpeed:
     async def main(self, app):
         t0 = time.ticks_ms()
         loop_count = 0
@@ -148,23 +144,29 @@ class LolStats:
                 loop_count = 0
                 t0 = t1
 
-class LolMemStats:
+import gc
+class DebugMem:
     async def main(self, app):
         while True:
             await asyncio.sleep(5)
             gc.collect()
             app.handle('mem_free', gc.mem_free())
 
+from machine import Pin, Signal
+
 try:
     app = App()
 
-    # WeMos D1 mini, pin D4 = GPIO2
-    led = machine.Pin(2, machine.Pin.OUT)
-    app.add(BlinkingLED(led, 'led_D4', True))
+    # WeMos D1 mini, pin D4 = GPIO2, inverted (active-low)
+    led = Signal(2, Pin.OUT, invert=True)
+    app.add(BlinkingLED(led, 'led'))
 
-    # WeMos D1 mini, pin D2 = GPIO4
-    btn = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
-    app.add(SimpleButton(btn, 'btn_D2', True))
+    # WeMos D1 mini, pin D2 = GPIO4, pull-up (active-low)
+    btn = Signal(4, Pin.IN, Pin.PULL_UP, invert=True)
+    app.add(SimpleButton(btn, 'btn'))
+
+    # Local connection: 'btn' -> 'led/set'
+    app.add(LocalManager(app))
 
     # somewhere in 'boot.py':
     # import network
@@ -174,10 +176,9 @@ try:
     #     wlan.connect('ssid', 'password')
     app.add(WirelessMQTT('192.168.0.82', 'board99'))
 
-    app.add(DebugDots())
-    app.add(LocalManager(app))
-    app.add(LolStats())
-    app.add(LolMemStats())
+    app.add(DebugPrint())
+    app.add(DebugSpeed())
+    app.add(DebugMem())
     asyncio.run(app.main())
 except KeyboardInterrupt:
     print('Stopped')
