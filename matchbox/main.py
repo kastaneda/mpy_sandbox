@@ -20,24 +20,25 @@ def msg(s):
         last_msg = s
 
 def read_cap_pin():
-    p = Pin(3, Pin.OPEN_DRAIN, value=0)
-    time.sleep_ms(5)
     p = Pin(3, Pin.IN, Pin.PULL_DOWN)
+    time.sleep_ms(5)
+    p = Pin(3, Pin.IN)
     t0 = time.ticks_us()
+    dt = -1
     while not p.value():
         t1 = time.ticks_us()
         dt = time.ticks_diff(t1, t0)
         if dt > 10000:
             p = Pin(3, Pin.OUT, value=0)
             return False
-    t1 = time.ticks_us()
     p = Pin(3, Pin.OUT, value=0)
-    return time.ticks_diff(t1, t0)
+    return dt
 
 while True:
     reading = read_cap_pin()
     if not reading:
-        msg('')
+        msg('-')
     else:
-        msg('dt = ' + str(reading / 1000) + ' ms')
-    time.sleep_ms(50)
+        msg('+\n\ndt = ' + str(reading / 1000) + ' ms')
+    #time.sleep_ms(50)
+
