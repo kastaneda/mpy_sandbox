@@ -3,9 +3,7 @@ import time
 import ssd1306
 
 try:
-    ssd_gnd = machine.Pin(0, machine.Pin.OPEN_DRAIN, value=0)
-    ssd_vcc = machine.Pin(1, machine.Pin.OUT, value=1)
-    i2c = machine.SoftI2C(scl=machine.Pin(2) , sda=machine.Pin(3))
+    i2c = machine.SoftI2C(scl=machine.Pin(0), sda=machine.Pin(1))
     disp = ssd1306.SSD1306_I2C(128, 32, i2c)
     disp.contrast(0)
     disp.text('Hello, World!', 0, 0, 1)
@@ -38,3 +36,4 @@ for i in range(20):
 # esp32.wake_on_ext0(pin_D2, esp32.WAKEUP_ANY_HIGH)
 
 machine.deepsleep(10000)
+
