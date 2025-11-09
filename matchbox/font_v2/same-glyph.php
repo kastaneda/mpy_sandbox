@@ -23,5 +23,8 @@ $tr = [
     'х' => 'x',
 ];
 
-// abcdefghijklmnopqstuvwxyz
-// бвгдєжзиїйклмнптфцчшщьюя ўёъыэ
+// ABCDEFGHIJKLMNOPQRSTUVWXYZ
+// abcdefghijklmnopqrstuvwxyz
+// БГҐДЄЖЗИЇЙЛПУФЦЧШЩЬЮЯ
+// бвгґдєжзиїйклмнптфцчшщьюя
+// ЎЁЪЫЭ ўёъыэ

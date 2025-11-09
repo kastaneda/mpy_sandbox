@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-$width = 960;
+$width = 1200;
 $height = 600;
 $padding = 20;
 
