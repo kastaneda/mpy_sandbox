@@ -1,14 +1,14 @@
 #!/usr/bin/env php
 <?php
 
-$width = 1200;
-$height = 600;
+$width = 1064;
+$height = 616;
 $padding = 20;
 
 $px_size = 7;
 $px_padding = 1;
 
-$lines = 5;
+$lines = 6;
 
 $im = imagecreate($width, $height);
 
@@ -39,9 +39,8 @@ for ($line = 0; $line < $lines; $line++) {
 }
 
 imagefilledrectangle($im,
-    $padding, $height - $padding - $px_size * 4,
-    $padding + $px_size * 10 , $height - $padding,
+    $padding, $padding,
+    $padding + $px_size - 1, $padding + $px_size - 1,
     $color_fg);
-
 
 imagepng($im, 'template.png');
