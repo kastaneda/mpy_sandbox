@@ -2,13 +2,13 @@
 <?php
 
 $width = 1064;
-$height = 616;
+$height = 392;
 $padding = 20;
 
 $px_size = 7;
 $px_padding = 1;
 
-$lines = 6;
+$lines = 4;
 
 $im = imagecreate($width, $height);
 
