@@ -34,7 +34,7 @@ $filesToRead = [
 $remap = require('same-glyph.php');
 
 $font = [
-    ' ' => '00000000',
+    ' ' => '000000',
 ];
 
 foreach ($filesToRead as $fileToRead) {
