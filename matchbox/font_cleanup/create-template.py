@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from PIL import Image, ImageDraw
-from grid import *
+from cfg_grid import *
 
 img = Image.new('RGB', (img_width, img_height), color_bg)
 draw = ImageDraw.Draw(img)

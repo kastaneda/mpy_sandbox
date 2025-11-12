@@ -1,5 +1,4 @@
-
-# Parameters that specify the template grid configuration
+# Configuration that specify the template grid dimensions
 img_padding = 20            # # empty space on image edges, in pixels
 dot_size = 7                # width and height of 'dot', in pixels
 dot_gap = 1                 # space between 'dots', in pixels
