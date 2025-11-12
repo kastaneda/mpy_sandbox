@@ -16,7 +16,7 @@ def print_vlsb(out_bits):
                 line += '  '
         print(line)
 
-font = {'remap': font_remap, 'glyph': {}}
+font = {'remap': font_remap, 'glyph': {' ': '000000'}}
 
 for font_file in font_files:
     img = Image.open(font_file['filename']).convert('RGB')
