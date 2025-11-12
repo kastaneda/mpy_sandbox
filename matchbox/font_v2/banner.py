@@ -35,6 +35,8 @@ for c in msg:
     else:
         out = glyph
 
+print(out)
+
 for y in range(8):
     line = ''
     for c in out:
